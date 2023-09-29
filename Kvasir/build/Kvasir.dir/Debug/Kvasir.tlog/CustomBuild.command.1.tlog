@@ -1,0 +1,10 @@
+^C:\USERS\ME\SOURCE\REPOS\KVASIR\KVASIR\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Me/source/repos/Kvasir/Kvasir -BC:/Users/Me/source/repos/Kvasir/Kvasir/build --check-stamp-file C:/Users/Me/source/repos/Kvasir/Kvasir/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

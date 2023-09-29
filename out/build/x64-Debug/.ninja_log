@@ -1,0 +1,5 @@
+# ninja log v5
+16	3984	7176084064366827	Kvasir/CMakeFiles/Kvasir.dir/Kvasir.cpp.obj	e201aba7d86abe5a
+3995	4505	7176084068357105	Kvasir/Kvasir.exe	5dc008612f9aa9c6
+2	3994	7176084064466834	Kvasir/CMakeFiles/Kvasir.dir/Components/CameraConnection.cpp.obj	d93302aece13d781
+0	25	0	clean	9992afb1f91dc381
