@@ -1,5 +1,0 @@
-C:/Users/Me/source/repos/Kvasir/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-C:/Users/Me/source/repos/Kvasir/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
-C:/Users/Me/source/repos/Kvasir/out/build/x64-Debug/Kvasir/CMakeFiles/Kvasir.dir
-C:/Users/Me/source/repos/Kvasir/out/build/x64-Debug/Kvasir/CMakeFiles/edit_cache.dir
-C:/Users/Me/source/repos/Kvasir/out/build/x64-Debug/Kvasir/CMakeFiles/rebuild_cache.dir
