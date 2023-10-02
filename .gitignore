@@ -1,1 +1,4 @@
-kvasir/kvasir/dependencies/
+/Kvasir/dependencies/
+/Kvasir/build/
+/.vs
+cMakeSettings.json

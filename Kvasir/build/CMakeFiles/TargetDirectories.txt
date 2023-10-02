@@ -1,3 +1,0 @@
-C:/Users/Me/source/repos/Kvasir/Kvasir/build/CMakeFiles/Kvasir.dir
-C:/Users/Me/source/repos/Kvasir/Kvasir/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/Me/source/repos/Kvasir/Kvasir/build/CMakeFiles/ZERO_CHECK.dir

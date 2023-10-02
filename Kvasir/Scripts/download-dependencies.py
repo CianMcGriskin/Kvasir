@@ -1,3 +1,4 @@
+import argparse
 import subprocess
 import os
 
@@ -16,12 +17,24 @@ def clone_repository(repo_url, folder_name, sourceFolder):
     else:
         print(f"Folder '{clone_path}' already exists. Skipping cloning.")
 
+# Need to make it possible to build project with seperate dependencies as it is very large altogether and very long to build.
+parser = argparse.ArgumentParser(description='Clone specific repositories required for your use case.')
+parser.add_argument('-t', '--tensorflow', action='store_true', help='Clone TensorFlow')
+parser.add_argument('-o', '--opencv', action='store_true', help='Clone OpenCV') 
+args = parser.parse_args()
+
 # Define repository URLs and folder names
 repositories = {
     "OpenCV": "https://github.com/opencv/opencv.git",
     "Tensorflow": "https://github.com/tensorflow/tensorflow.git"
 }
 
-# Clone multiple repositories into the Dependencies folder
-for folder_name, repo_url in repositories.items():
-    clone_repository(repo_url, folder_name, sourceFolder)
+# Clone repositories to specify dependencies to clone
+if args.tensorflow:
+    clone_repository(repositories["Tensorflow"], "Tensorflow", sourceFolder)
+if args.opencv:
+    clone_repository(repositories["OpenCV"], "OpenCV", sourceFolder)
+
+# Display available commands if no arguments provided
+if not (args.tensorflow or args.opencv):
+    parser.print_help()
