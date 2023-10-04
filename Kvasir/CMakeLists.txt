@@ -1,17 +1,29 @@
 ﻿# CMakeList.txt : CMake project for Kvasir, include source and define
-# project specific logic here.
 #
-cmake_minimum_required (VERSION 3.8)
 
+cmake_minimum_required(VERSION 3.8)
+project(Kvasir)
+
+# Set the path to OpenCV build directory
 set(OpenCV_DIR "./Dependencies/opencv/build")
-
 find_package(OpenCV REQUIRED)
 
+set(TENSORFLOW_SOURCE_DIR "./Dependencies/Tensorflow" CACHE PATH
+  "Directory that contains the TensorFlow project" )
+#find_package(tensorflow-lite REQUIRED)
+
+# Include TensorFlow lite library
+add_subdirectory(
+  "./Dependencies/Tensorflow/tensorflow/lite"
+  "${CMAKE_CURRENT_BINARY_DIR}/tensorflow-lite" EXCLUDE_FROM_ALL)
 
 # Add source to this project's executable.
-add_executable (Kvasir "Kvasir.cpp" "Kvasir.h" "Components/CameraConnection.cpp" "Components/CameraConnection.h" "Components/Model.cpp" "Components/Model.h")
+add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/CameraConnection.cpp" "Components/CameraConnection.h" "Components/Model.cpp" "Components/Model.h")
 
-target_link_libraries(Kvasir PRIVATE ${OpenCV_LIBS})
+# Link TensorFlow lite library
+target_link_libraries(Kvasir tensorflow-lite)
 
+# Link OpenCV libraries
+target_link_libraries(Kvasir ${OpenCV_LIBS})
 
 # TODO: Add tests and install targets if needed.

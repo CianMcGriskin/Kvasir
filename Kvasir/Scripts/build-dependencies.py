@@ -23,12 +23,14 @@ def buildOpenCV():
 # Function to build TensorFlow Lite
 def buildTensorFlowLite():
     print("Building TensorFlow Lite...")
+    
     tensorflow_path = os.path.join(sourceFolder, "Dependencies", "TensorFlow")
     tflite_build_path = os.path.join(tensorflow_path, "tflite_build")
 
     os.makedirs(tflite_build_path, exist_ok=True)
 
     try:
+        # cmake ../tensorflow/lite -DTFLITE_ENABLE_XNNPACK=OFF -DTFLITE_ENABLE_INSTALL=ON -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON -DSYSTEM_FARMHASH=OFF -DSYSTEM_PTHREADPOOL=ON -Dabsl_DIR=./lib/cmake/absl -Druy_DIR=./lib/cmake/ruy -DNEON_2_SSE_DIR=./lib/cmake/NEON_2_SSE
         subprocess.run(["cmake", "../tensorflow/lite"], cwd=tflite_build_path, check=True)
         subprocess.run(["cmake", "--build", ".", "-j"], cwd=tflite_build_path, check=True)
     except subprocess.CalledProcessError as e:
