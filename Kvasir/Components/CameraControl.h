@@ -1,4 +1,6 @@
 #include <opencv2/opencv.hpp>
+#include <chrono>
+#include <thread>
 
 class CameraControl {
 public:

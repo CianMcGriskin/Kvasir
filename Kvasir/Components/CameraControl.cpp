@@ -1,13 +1,16 @@
 #include "CameraControl.h"
-#include <chrono>
-#include <thread>
 
 void CameraControl::TakePicture(const std::basic_string<char>& filename) {
     cv::VideoCapture cap(0);
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    if (!cap.isOpened())
+    {
+        std::cerr << "Error: Could not open the camera." << std::endl;
+        return;
+    }
 
-    // Capture a single frame from the camera
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+
     cv::Mat frame;
     if (!cap.read(frame))
     {

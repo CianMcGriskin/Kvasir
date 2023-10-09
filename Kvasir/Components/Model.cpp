@@ -1,6 +1,5 @@
-#include <opencv2/core/mat.hpp>
-#include <opencv2/opencv.hpp>
 #include "Model.h"
+#include "GraphicOverlay.h"
 
 // Function to load a TensorFlow Lite model from a file
 void Model::LoadModel(const char* modelPath) {
@@ -46,26 +45,37 @@ void Model::BuildInterpreter() {
 
 void Model::HandleInput(int16_t modelSize, std::string imagePath) {
     // [1, 320, 320, 3]
-    cv::Mat image = cv::imread(imagePath);
-    cv::resize(image, image, cv::Size(modelSize, modelSize));
-    image.convertTo(image, CV_32FC4);
-    image /= 255.0;
+    input = cv::imread(imagePath);
+    cv::resize(input, input, cv::Size(modelSize, modelSize));
+    input.convertTo(input, CV_32FC4);
+    input /= 255.0;
 
     // Copy preprocessed image data to the input tensor
-    float* input = interpreter->typed_input_tensor<float>(0);
-    std::memcpy(input, image.data, modelSize * modelSize * 3 * sizeof(float));
+    float* inputTensor = interpreter->typed_input_tensor<float>(0);
+    std::memcpy(inputTensor, input.data, modelSize * modelSize * 3 * sizeof(float));
 
     interpreter->Invoke();
 }
 
 void Model::HandleOutput(){
-    float* output = interpreter->typed_output_tensor<float>(0);
+    output = interpreter->typed_output_tensor<float>(0);
     std::vector<std::string> labels = Model::LoadIdentityLabels("/home/cian/dev/Kvasir/Kvasir/labels.txt");
-    for (int i = 0; i < 85; ++i) {
-            int class_index = static_cast<int>(output[i * 85]);  // Assuming class index is at the beginning
-            std::string class_name = labels[class_index];
+    int numDetections = 6300;
+    const int numValuesPerDetection = labels.size();
+    float min_confidence_threshold = 0.3;
 
-            std::cout << "Detected: " << class_name << " (confidence: " << class_index << ")" << std::endl;
+
+    for (int i = 0; i < numDetections; ++i)
+    {
+        float confidence = output[i * numValuesPerDetection + 4];
+
+        if(confidence > min_confidence_threshold)
+        {
+            int classIndex = static_cast<int>(output[i * numValuesPerDetection]);
+            std::string class_name = labels[classIndex];
+            GraphicOverlay::DrawBox(output, numValuesPerDetection, i, input);
+            std::cout << "Detected: " << class_name << " (confidence: " << confidence << ")" << std::endl;
+        }
     }
 }
 
@@ -75,4 +85,12 @@ bool Model::IsModelLoaded() const {
 
 std::unique_ptr<tflite::FlatBufferModel>& Model::GetModel() {
     return model;
+}
+
+cv::Mat Model::GetInput() {
+    return input;
+}
+
+std::unique_ptr<tflite::Interpreter>& Model::GetInterpreter() {
+    return interpreter;
 }
