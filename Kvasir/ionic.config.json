@@ -1,0 +1,7 @@
+{
+  "name": "Kvasir",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
