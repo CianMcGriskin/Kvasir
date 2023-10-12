@@ -25,7 +25,7 @@ public:
     std::unique_ptr<tflite::FlatBufferModel>& GetModel();
 
     // Handles outputting needed data to use in graphical drawing and recognition.
-    void HandleOutput();
+    void HandleOutput(float minimumConfidence);
 
     cv::Mat GetInput();
 

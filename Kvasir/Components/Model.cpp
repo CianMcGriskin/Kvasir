@@ -47,7 +47,7 @@ void Model::HandleInput(int16_t modelSize, std::string imagePath) {
     // [1, 320, 320, 3]
     input = cv::imread(imagePath);
     cv::resize(input, input, cv::Size(modelSize, modelSize));
-    input.convertTo(input, CV_32FC4);
+    input.convertTo(input, CV_32FC3);
     input /= 255.0;
 
     // Copy preprocessed image data to the input tensor
@@ -57,24 +57,32 @@ void Model::HandleInput(int16_t modelSize, std::string imagePath) {
     interpreter->Invoke();
 }
 
-void Model::HandleOutput(){
+void Model::HandleOutput(float minimumConfidence){
     output = interpreter->typed_output_tensor<float>(0);
     std::vector<std::string> labels = Model::LoadIdentityLabels("/home/cian/dev/Kvasir/Kvasir/labels.txt");
-    int numDetections = 6300;
+    int numDetections = 100;
     const int numValuesPerDetection = labels.size();
-    float min_confidence_threshold = 0.3;
 
+    for (int i = 0; i < numDetections; ++i) {
+        float class_score = output[i * numValuesPerDetection + 4];
+        
+        // Check if the class score is above the threshold
+        if (class_score > minimumConfidence) {
+            int x_center = static_cast<int>(output[i * numValuesPerDetection + 0] * input.cols);  // x_center
+            int y_center = static_cast<int>(output[i * numValuesPerDetection + 1] * input.rows);  // y_center
+            int width = static_cast<int>(output[i * numValuesPerDetection + 2] * input.cols);  // width
+            int height = static_cast<int>(output[i * numValuesPerDetection + 3] * input.rows);  // height
 
-    for (int i = 0; i < numDetections; ++i)
-    {
-        float confidence = output[i * numValuesPerDetection + 4];
+            // Calculate top-left and bottom-right coordinates of the bounding box
+            int x1 = x_center - width / 2;
+            int y1 = y_center - height / 2;
+            int x2 = x1 + width;
+            int y2 = y1 + height;
 
-        if(confidence > min_confidence_threshold)
-        {
-            int classIndex = static_cast<int>(output[i * numValuesPerDetection]);
-            std::string class_name = labels[classIndex];
-            GraphicOverlay::DrawBox(output, numValuesPerDetection, i, input);
-            std::cout << "Detected: " << class_name << " (confidence: " << confidence << ")" << std::endl;
+            std::cout << "Detected person" << " (confidence: " << class_score << ")" << std::endl;
+
+            // Draw rectangle around the detected region
+            cv::rectangle(input, cv::Rect(x1, y1, width, height), cv::Scalar(0, 255, 0), 2);
         }
     }
 }

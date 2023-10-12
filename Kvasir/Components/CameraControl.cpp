@@ -9,7 +9,7 @@ void CameraControl::TakePicture(const std::basic_string<char>& filename) {
         return;
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(4));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 
     cv::Mat frame;
     if (!cap.read(frame))
