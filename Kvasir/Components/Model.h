@@ -6,7 +6,9 @@
 
 class Model {
 public:
-    // Function used to load model from File
+    Model(int16_t modelSize);
+
+// Function used to load model from File
     void LoadModel(const char* modelPath);
 
     // Function used to load label identifiers
@@ -16,10 +18,7 @@ public:
     void BuildInterpreter();
 
     // Handles the input, conversions to fit model criteria
-    void HandleInput(int16_t modelSize, std::string imagePath);
-
-    // Function to check if model has been loaded or not
-    bool IsModelLoaded() const;
+    void HandleInput(int16_t modelSize, const cv::Mat& frame);
 
     // Function that returns the model
     std::unique_ptr<tflite::FlatBufferModel>& GetModel();
@@ -29,12 +28,10 @@ public:
 
     cv::Mat GetInput();
 
-    std::unique_ptr<tflite::Interpreter>& GetInterpreter();
-
 private:
+    float* inputTensor;
     std::unique_ptr<tflite::FlatBufferModel> model;
     std::unique_ptr<tflite::Interpreter> interpreter;
     cv::Mat input;
     float* output;
-    bool loaded;
 };

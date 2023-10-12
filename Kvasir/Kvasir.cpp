@@ -1,53 +1,44 @@
 ﻿#include "./Components/CameraControl.h"
 #include "./Components/CameraConnection.h"
 #include "./Components/Model.h"
-
+#include <opencv2/opencv.hpp>
 
 int main() {
     // Load the model using model class
-    Model modelInstance;
+    Model modelInstance(320);
     CameraControl camera;
+    CameraConnection camera1;
+    camera1.OpenCamera();
+    cv::VideoCapture cap(0);
 
-    camera.TakePicture("/home/cian/dev/Kvasir/Kvasir/capture.jpg");
-    modelInstance.LoadModel("/home/cian/dev/Kvasir/Kvasir/yolov5.tflite");
+    //camera.TakePicture("../../Kvasir/capture.jpg");
+
+    modelInstance.LoadModel("../../Kvasir/yolov5.tflite");
 
     modelInstance.BuildInterpreter();
-    modelInstance.HandleInput(320, "/home/cian/dev/Kvasir/Kvasir/capture.jpg");
-    //modelInstance.HandleOutput(0.1);
+    //modelInstance.HandleInput(320, "../../Kvasir/capture.jpg");
 
-    int num_detections = 6300;
-    int num_values_per_detection = 85;
-    float min_confidence_threshold = 0.5;
-    float* output = modelInstance.GetInterpreter()->typed_output_tensor<float>(0);
-    std::vector<std::string> class_labels = modelInstance.LoadIdentityLabels("/home/cian/dev/Kvasir/Kvasir/labels.txt");
-    cv::Mat inputVar = modelInstance.GetInput();
+    // Main loop for processing frames from the camera
+    while (true) {
+        cv::Mat frame;
+        // Capture a frame from the camera
+        cap >> frame;
 
-    // Visualize detected regions with confidence above the threshold
-    for (int i = 0; i < num_detections; ++i) {
-        float class_score = output[i * num_values_per_detection + 4];  // Assuming the class score is at index 4
-        // Check if the class score is above the threshold
-        if (class_score > min_confidence_threshold) {
-            int x_center = static_cast<int>(output[i * num_values_per_detection + 0] * inputVar.cols);  // x_center
-            int y_center = static_cast<int>(output[i * num_values_per_detection + 1] * inputVar.rows);  // y_center
-            int width = static_cast<int>(output[i * num_values_per_detection + 2] * inputVar.cols);  // width
-            int height = static_cast<int>(output[i * num_values_per_detection + 3] * inputVar.rows);  // height
+        // Call the HandleInput function to preprocess and run inference
+        modelInstance.HandleInput(320, frame);
+        modelInstance.HandleOutput(0.5);
+        // Display the original frame (optional: display the processed frame with inference result)
+        cv::imshow("Camera Feed", frame);
 
-            // Calculate top-left and bottom-right coordinates of the bounding box
-            int x1 = x_center - width / 2;
-            int y1 = y_center - height / 2;
-            int x2 = x1 + width;
-            int y2 = y1 + height;
-
-            std::cout << "Detected person" << " (confidence: " << class_score << ")" << std::endl;
-
-            // Draw rectangle around the detected region
-            cv::rectangle(inputVar, cv::Rect(x1, y1, width, height), cv::Scalar(0, 255, 0), 2);
+        // Break the loop if 'q' is pressed
+        if (cv::waitKey(1) == 'q') {
+            break;
         }
     }
 
-    // Display the image with detection results
-    cv::imshow("Detection Results", inputVar);
-    cv::waitKey(0);  // Wait for a key event
+    // Release the camera capture and close OpenCV windows
+    cap.release();
+    cv::destroyAllWindows();
 
     return 0;
 }

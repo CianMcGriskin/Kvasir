@@ -1,17 +1,16 @@
 #include "Model.h"
 #include "GraphicOverlay.h"
 
+#include <chrono>
+
+Model::Model(int16_t modelSize) {
+    input = cv::Mat(modelSize, modelSize, CV_32FC3);
+    std::vector<std::string> labels = Model::LoadIdentityLabels("../../Kvasir/labels.txt");
+}
+
 // Function to load a TensorFlow Lite model from a file
 void Model::LoadModel(const char* modelPath) {
     model = tflite::FlatBufferModel::BuildFromFile(modelPath);
-    if (!model)
-    {
-        loaded = false;
-    }
-    else
-    {
-        loaded = true;
-    }
 }
 
 std::vector<std::string> Model::LoadIdentityLabels(const std::string& labelsPath) {
@@ -41,27 +40,52 @@ void Model::BuildInterpreter() {
 
     // Resize input tensors to model input tensor size
     interpreter->AllocateTensors();
+    inputTensor = interpreter->typed_input_tensor<float>(0);
 }
 
-void Model::HandleInput(int16_t modelSize, std::string imagePath) {
-    // [1, 320, 320, 3]
-    input = cv::imread(imagePath);
-    cv::resize(input, input, cv::Size(modelSize, modelSize));
+//void Model::HandleInput(int16_t modelSize, std::string imagePath) {
+//    // [1, 320, 320, 3]
+//    input = cv::imread(imagePath);
+//    cv::resize(input, input, cv::Size(modelSize, modelSize));
+//    input.convertTo(input, CV_32FC3);
+//    input /= 255.0;
+//
+//    // Copy preprocessed image data to the input tensor
+//    float* inputTensor = interpreter->typed_input_tensor<float>(0);
+//    std::memcpy(inputTensor, input.data, modelSize * modelSize * 3 * sizeof(float));
+//
+//    interpreter->Invoke();
+//}
+
+void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
+    // Start measuring the execution time
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    // Resize the input frame to match the model input size
+    cv::resize(frame, input, cv::Size(modelSize, modelSize));
     input.convertTo(input, CV_32FC3);
-    input /= 255.0;
 
     // Copy preprocessed image data to the input tensor
-    float* inputTensor = interpreter->typed_input_tensor<float>(0);
     std::memcpy(inputTensor, input.data, modelSize * modelSize * 3 * sizeof(float));
 
+    // Invoke the interpreter
     interpreter->Invoke();
+
+    // Stop measuring the execution time
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    // Calculate and print the execution time in milliseconds
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    std::cout << "HandleInput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
+
 void Model::HandleOutput(float minimumConfidence){
+    // Values taken from output tensor
+    const int numValuesPerDetection = 85;
+    const int numDetections = 6300;
+
     output = interpreter->typed_output_tensor<float>(0);
-    std::vector<std::string> labels = Model::LoadIdentityLabels("/home/cian/dev/Kvasir/Kvasir/labels.txt");
-    int numDetections = 100;
-    const int numValuesPerDetection = labels.size();
 
     for (int i = 0; i < numDetections; ++i) {
         float class_score = output[i * numValuesPerDetection + 4];
@@ -76,19 +100,13 @@ void Model::HandleOutput(float minimumConfidence){
             // Calculate top-left and bottom-right coordinates of the bounding box
             int x1 = x_center - width / 2;
             int y1 = y_center - height / 2;
-            int x2 = x1 + width;
-            int y2 = y1 + height;
 
-            std::cout << "Detected person" << " (confidence: " << class_score << ")" << std::endl;
+            std::cout << class_score << "Conf";
 
             // Draw rectangle around the detected region
             cv::rectangle(input, cv::Rect(x1, y1, width, height), cv::Scalar(0, 255, 0), 2);
         }
     }
-}
-
-bool Model::IsModelLoaded() const {
-    return loaded;
 }
 
 std::unique_ptr<tflite::FlatBufferModel>& Model::GetModel() {
@@ -97,8 +115,4 @@ std::unique_ptr<tflite::FlatBufferModel>& Model::GetModel() {
 
 cv::Mat Model::GetInput() {
     return input;
-}
-
-std::unique_ptr<tflite::Interpreter>& Model::GetInterpreter() {
-    return interpreter;
 }
