@@ -20,6 +20,8 @@ public:
     // Handles the input, conversions to fit model criteria
     void HandleInput(int16_t modelSize, const cv::Mat& frame);
 
+    void HandleImageInput(int16_t modelSize, const std::string& imagePath);
+
     // Function that returns the model
     std::unique_ptr<tflite::FlatBufferModel>& GetModel();
 
@@ -30,6 +32,7 @@ public:
 
 private:
     float* inputTensor;
+    std::vector<std::string> classLabels;
     std::unique_ptr<tflite::FlatBufferModel> model;
     std::unique_ptr<tflite::Interpreter> interpreter;
     cv::Mat input;

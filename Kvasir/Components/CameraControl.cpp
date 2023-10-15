@@ -1,9 +1,9 @@
 #include "CameraControl.h"
 
 void CameraControl::TakePicture(const std::basic_string<char>& filename) {
-    cv::VideoCapture cap(0);
+    camera.open(0);
 
-    if (!cap.isOpened())
+    if (!camera.isOpened())
     {
         std::cerr << "Error: Could not open the camera." << std::endl;
         return;
@@ -11,7 +11,7 @@ void CameraControl::TakePicture(const std::basic_string<char>& filename) {
 
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
-    if (!cap.read(frame))
+    if (!camera.read(frame))
     {
         std::cerr << "Error: Could not read a frame from the camera." << std::endl;
         return;
@@ -21,7 +21,7 @@ void CameraControl::TakePicture(const std::basic_string<char>& filename) {
     cv::imwrite(filename, frame);
 
     // Release the camera
-    cap.release();
+    camera.release();
 
     std::cout << "Image captured." << std::endl;
 }
