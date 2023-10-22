@@ -6,9 +6,10 @@
 
 class Model {
 public:
+    // Constructor for the model class assigned model LxW needed
     Model(int16_t modelSize);
 
-// Function used to load model from File
+    // Function used to load model from File
     void LoadModel(const char* modelPath);
 
     // Function used to load label identifiers
@@ -17,10 +18,11 @@ public:
     // Function to build interpreter - driver class to run pre-trained models
     void BuildInterpreter();
 
-    // Handles the input, conversions to fit model criteria
+    // Handles the input from a live frame, conversions to fit model criteria
     void HandleInput(int16_t modelSize, const cv::Mat& frame);
 
-    void HandleImageInput(int16_t modelSize, const std::string& imagePath);
+    // Handles input coming from an image, used mainly for development purposes
+    void HandleImageInput(const std::string& imagePath);
 
     // Function that returns the model
     std::unique_ptr<tflite::FlatBufferModel>& GetModel();
@@ -32,9 +34,12 @@ public:
 
 private:
     float* inputTensor;
+    int16_t modelParam;
     std::vector<std::string> classLabels;
     std::unique_ptr<tflite::FlatBufferModel> model;
     std::unique_ptr<tflite::Interpreter> interpreter;
     cv::Mat input;
     float* output;
+
+    void DrawBox(int maxConfidenceIndex, float maxConfidence);
 };

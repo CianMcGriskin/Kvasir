@@ -21,12 +21,15 @@ def clone_repository(repo_url, folder_name, sourceFolder):
 parser = argparse.ArgumentParser(description='Clone specific repositories required for your use case.')
 parser.add_argument('-t', '--tensorflow', action='store_true', help='Clone TensorFlow')
 parser.add_argument('-o', '--opencv', action='store_true', help='Clone OpenCV') 
+parser.add_argument('-ms', '--mjpeg', action='store_true', help='Clone MJPEG Streamer') 
+parser.add_argument('-a', '--all', action='store_true', help='Clone All Required') 
 args = parser.parse_args()
 
 # Define repository URLs and folder names
 repositories = {
     "OpenCV": "https://github.com/opencv/opencv.git",
     "Tensorflow": "https://github.com/tensorflow/tensorflow.git"
+    "MJPEG": "https://github.com/nadjieb/cpp-mjpeg-streamer.git"
 }
 
 # Clone repositories to specify dependencies to clone
@@ -34,6 +37,8 @@ if args.tensorflow:
     clone_repository(repositories["Tensorflow"], "Tensorflow", sourceFolder)
 if args.opencv:
     clone_repository(repositories["OpenCV"], "OpenCV", sourceFolder)
+if args.opencv:
+    clone_repository(repositories["MJPEG"], "MJPEG", sourceFolder)
 
 # Display available commands if no arguments provided
 if not (args.tensorflow or args.opencv):

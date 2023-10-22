@@ -10,7 +10,6 @@ find_package(OpenCV REQUIRED)
 
 set(TENSORFLOW_SOURCE_DIR "" CACHE PATH
   "Directory that contains the TensorFlow project" )
-#find_package(tensorflow-lite REQUIRED)
 
 message(PROJECT_SOURCE_DIR="${TENSORFLOW_SOURCE_DIR}")
 
@@ -18,18 +17,22 @@ message(PROJECT_SOURCE_DIR="${TENSORFLOW_SOURCE_DIR}")
 add_subdirectory(
   "./Dependencies/Tensorflow/tensorflow/lite"
   "${CMAKE_CURRENT_BINARY_DIR}/tensorflow-lite" EXCLUDE_FROM_ALL)
-
+  
+add_subdirectory(
+  "./Dependencies/cpp-mjpeg-streamer"
+  "${CMAKE_CURRENT_BINARY_DIR}/cpp-mjpeg-streamer-build")
+  
 # Add source to this project's executable.
-add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/CameraConnection.cpp" "Components/CameraConnection.h" "Components/Model.cpp" "Components/Model.h"
+add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/Model.cpp" "Components/Model.h"
         Components/CameraControl.cpp
         Components/CameraControl.h
-        Components/GraphicOverlay.cpp
-        Components/GraphicOverlay.h)
+        Components/WebserverCommunication/StreamService.cpp
+        Components/WebserverCommunication/StreamService.h)
 
 # Link TensorFlow lite library
 target_link_libraries(Kvasir tensorflow-lite)
 
 # Link OpenCV libraries
-target_link_libraries(Kvasir ${OpenCV_LIBS})
+target_link_libraries(Kvasir tensorflow-lite ${OpenCV_LIBS})
 
-# TODO: Add tests and install targets if needed.
+target_link_libraries(Kvasir nadjieb_mjpeg_streamer::nadjieb_mjpeg_streamer)

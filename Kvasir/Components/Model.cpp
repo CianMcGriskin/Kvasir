@@ -1,10 +1,10 @@
 #include "Model.h"
-#include "GraphicOverlay.h"
 
 #include <chrono>
 
 // Constructor of the Model class, passing the model size for image in this case [1, 320, 320, 3]
 Model::Model(int16_t modelSize) {
+    modelParam = modelSize;
     input = cv::Mat(modelSize, modelSize, CV_32FC3);
     classLabels = Model::LoadIdentityLabels("../../Kvasir/labels.txt");
 }
@@ -46,17 +46,17 @@ void Model::BuildInterpreter() {
     interpreter->SetNumThreads(6);
 }
 
-void Model::HandleImageInput(int16_t modelSize, const std::string& imagePath) {
+void Model::HandleImageInput(const std::string& imagePath) {
     // Used to calculate performance time
     auto startTime = std::chrono::high_resolution_clock::now();
     input = cv::imread(imagePath);
-    cv::resize(input, input, cv::Size(modelSize, modelSize));
+    cv::resize(input, input, cv::Size(modelParam, modelParam));
     input.convertTo(input, CV_32FC3);
     input /= 255.0;
 
     // Copy preprocessed image data to the input tensor
     float* inputImageTensor = interpreter->typed_input_tensor<float>(0);
-    std::memcpy(inputImageTensor, input.data, modelSize * modelSize * 3 * sizeof(float));
+    std::memcpy(inputImageTensor, input.data, modelParam * modelParam * 3 * sizeof(float));
 
     interpreter->Invoke();
 
@@ -75,7 +75,7 @@ void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
     input /= 255.0;
 
     // Copy preprocessed image data to the input tensor
-    std::memcpy(inputTensor, input.data, modelSize * modelSize * 3 * sizeof(uint8_t));
+    std::memcpy(inputTensor, input.data, modelSize * modelSize * 3 * sizeof(float));
 
     // Invoke the interpreter
     interpreter->Invoke();
@@ -111,31 +111,35 @@ void Model::HandleOutput(float minimumConfidence) {
 
     // If an object above the threshold is found, draw a rectangle around it
     if (maxConfidenceIndex != -1) {
-        int x_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection] * input.cols);  // x_center
-        int y_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 1] * input.rows);  // y_center
-        int width = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 2] * input.cols);  // width
-        int height = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 3] * input.rows);  // height
-
-        // Calculate top-left and bottom-right coordinates of the bounding box
-        int x1 = x_center - width / 2;
-        int y1 = y_center - height / 2;
-
-        std::string classLabel = classLabels[static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection])];
-
-        std::cout << "Class: " << classLabel << ", Confidence Level: " << maxConfidence << "\n";
-
-        // Draw rectangle around the detected region
-        cv::rectangle(input, cv::Rect(x1, y1, width, height), cv::Scalar(0, 255, 0), 2);
-        std::string label = classLabel + ": " + std::to_string(maxConfidence);
-
-        int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-        double fontScale = 0.5;
-        int thickness = 1;
-        cv::Size textSize = cv::getTextSize(label, fontFace, fontScale, thickness, nullptr);
-        int textX = x1 + (width - textSize.width) / 2;
-        int textY = y1 - 10;  // Adjust the vertical position of the label
-        cv::putText(input, label, cv::Point(textX, textY), fontFace, fontScale, cv::Scalar(0, 255, 0), thickness);
+        DrawBox(maxConfidenceIndex, maxConfidence);
     }
+}
+
+// Function to handle the graphical side of the output, used to draw boxes around detected people etc.
+void Model::DrawBox(int maxConfidenceIndex, float maxConfidence) {
+    int x_center = static_cast<int>(output[maxConfidenceIndex * 85] * input.cols);  // x_center
+    int y_center = static_cast<int>(output[maxConfidenceIndex * 85 + 1] * input.rows);  // y_center
+    int width = static_cast<int>(output[maxConfidenceIndex * 85 + 2] * input.cols);  // width
+    int height = static_cast<int>(output[maxConfidenceIndex * 85 + 3] * input.rows);  // height
+
+    // Calculate top-left and bottom-right coordinates of the bounding box
+    int x = x_center - width / 2;
+    int y = y_center - height / 2;
+
+    std::string classLabel = classLabels[static_cast<int>(output[maxConfidenceIndex * 85])];
+
+
+    // Draw rectangle around the detected region
+    cv::rectangle(input, cv::Rect(x, y, width, height), cv::Scalar(0, 255, 0), 2);
+    std::string label = classLabel + ": " + std::to_string(maxConfidence);
+
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = 0.5;
+    int thickness = 1;
+    cv::Size textSize = cv::getTextSize(label, fontFace, fontScale, thickness, nullptr);
+    int textX = x + (width - textSize.width) / 2;
+    int textY = y - 10;  // Adjust the vertical position of the label
+    cv::putText(input, label, cv::Point(textX, textY), fontFace, fontScale, cv::Scalar(0, 255, 0), thickness);
 }
 
 

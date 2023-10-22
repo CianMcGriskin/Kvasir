@@ -1,5 +1,6 @@
 #include "CameraControl.h"
 
+// Used to take a picture using a camera and saving it to a file located where the param is
 void CameraControl::TakePicture(const std::basic_string<char>& filename) {
     camera.open(0);
 
@@ -9,6 +10,7 @@ void CameraControl::TakePicture(const std::basic_string<char>& filename) {
         return;
     }
 
+    // Attempting to fix issue of camera quality being bad on startup, doesn't seem to work
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
     if (!camera.read(frame))

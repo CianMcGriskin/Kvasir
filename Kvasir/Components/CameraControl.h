@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
-#include <chrono>
 #include <thread>
 
+// CLass mainly used to test through taking pictures and seeing output
 class CameraControl {
 public:
     // Function used to take a picture of the current camera frame
