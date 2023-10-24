@@ -1,0 +1,32 @@
+# Ignore environment files
+**/environments/environment.ts
+**/environments/environment.prod.ts
+
+# Node.js
+**/node_modules/
+**/npm-debug.log
+**/yarn-error.log
+
+# Cordova
+**/platforms/
+**/plugins/
+**/*.sqlite
+
+
+# IDEs and editors
+**/.idea/
+**/.vscode/
+**/*.sublime-*
+**/*.swp
+**/.DS_Store
+
+# Build files
+**/www/
+**/dist/
+**/*.apk
+**/*.ipa
+
+# Logs and debugging files
+**/*.log
+**/logs/
+**/debug.log

@@ -8,6 +8,12 @@
 </ion-header>
 
 <ion-content>
+  <div *ngIf="isCameraOffline; else liveStream">
+    <p>CAMERA OFFLINE</p>
+  </div>
+  <ng-template #liveStream>
+    <img [src]="mjpegUrl" (error)="handleImageError()" *ngIf="mjpegUrl" />
+  </ng-template>
 </ion-content>
 
  
