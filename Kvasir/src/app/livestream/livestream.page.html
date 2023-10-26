@@ -3,17 +3,15 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Live Footage</ion-title>
+    <ion-title>Live Stream</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-text-center">
   <div *ngIf="isCameraOffline; else liveStream">
     <p>CAMERA OFFLINE</p>
   </div>
   <ng-template #liveStream>
-    <img [src]="mjpegUrl" (error)="handleImageError()" *ngIf="mjpegUrl" />
+    <img [src]="streamImage.src" class="centered-image" />
   </ng-template>
 </ion-content>
-
- 
