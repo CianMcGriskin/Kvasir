@@ -1,0 +1,17 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>database</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="videos && videos.length > 0">
+    <ion-item *ngFor="let video of videos" (click)="playVideo(video.Url)">
+      {{ extractFileName(video.Key) }}
+    </ion-item>
+  </ion-list>
+  <ion-label *ngIf="!videos || videos.length === 0">
+    No videos found in the 'Videos' folder.
+  </ion-label>
+</ion-content>
+

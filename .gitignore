@@ -1,6 +1,7 @@
 # Ignore environment files
 **/environments/environment.ts
 **/environments/environment.prod.ts
+**/.env
 
 # Node.js
 **/node_modules/

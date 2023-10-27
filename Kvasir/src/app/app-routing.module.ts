@@ -14,7 +14,11 @@ const routes: Routes = [
   {
     path: 'livestream',
     loadChildren: () => import('./livestream/livestream.module').then( m => m.LivestreamPageModule)
+  },  {
+    path: 'database',
+    loadChildren: () => import('./database/database.module').then( m => m.DatabasePageModule)
   },
+
 ];
 
 @NgModule({
