@@ -88,6 +88,25 @@ void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
     std::cout << "HandleInput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
+void Model::HandleFaceOutput() {
+    // Number of dimensions in the embedding vector
+    const int embeddingSize = 512;
+
+    // Get the output tensor from the interpreter
+    output = interpreter->typed_output_tensor<float>(0);
+
+    // Assuming there's only one detection in the output tensor (shape: [1, 512])
+    const float* embeddingData = output;
+
+    // Print the embeddings to the console
+    std::cout << "Face Embeddings: ";
+    for (int j = 0; j < embeddingSize; ++j) {
+        std::cout << embeddingData[j] << " ";
+    }
+    std::cout << std::endl;
+}
+
+
 
 void Model::HandleOutput(float minimumConfidence) {
     // Values taken from output tensor

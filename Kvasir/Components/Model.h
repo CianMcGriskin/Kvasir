@@ -30,6 +30,8 @@ public:
     // Handles outputting needed data to use in graphical drawing and recognition.
     void HandleOutput(float minimumConfidence);
 
+    void HandleFaceOutput();
+
     cv::Mat GetInput();
 
 private:
