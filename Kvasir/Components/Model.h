@@ -43,5 +43,5 @@ private:
     cv::Mat input;
     float* output;
 
-    void DrawBox(int maxConfidenceIndex, float maxConfidence);
+    void DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPerDetection);
 };

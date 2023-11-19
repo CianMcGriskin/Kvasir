@@ -1,23 +1,29 @@
 ﻿#include "./Kvasir.h"
-
+#include "../../Kvasir/Components/FaceDetection/FaceDetection.h"
 int main() {
     // Load the model using model class
-    Model modelInstance(160);
+//    Model modelInstance(320);
     CameraControl camera;
+    FaceDetection faceDetection = FaceDetection();
 //    cv::VideoCapture cap(0);
 //    cv::Mat frame;
 
+
     // Video input and resolution size
-
     camera.TakePicture("../../Kvasir/capture.jpg");
-    modelInstance.LoadModel("../../Kvasir/facenet.tflite");
-    modelInstance.BuildInterpreter();
+    cv::Mat image = cv::imread("../../Kvasir/capture.jpg");
 
-    modelInstance.HandleImageInput("../../Kvasir/capture.jpg");
-    modelInstance.HandleFaceOutput();
+    cv::dnn::Net faceDetectionModel = faceDetection.GetModel();
+    faceDetection.DetectFaces(image, 0.5);
 
-    cv::imshow("Detection Results", modelInstance.GetInput());
-    cv::waitKey(0);
+//    modelInstance.LoadModel("../../Kvasir/Components/Models/yolov5.tflite");
+//    modelInstance.BuildInterpreter();
+
+//    modelInstance.HandleImageInput("../../Kvasir/capture.jpg");
+//    modelInstance.HandleOutput(0.5);
+
+//    cv::imshow("Detection Results", modelInstance.GetInput());
+//    cv::waitKey(0);
 //    StreamService::StartStream();
 //    // Main loop for processing frames from the camera
 //   while (true) {
@@ -40,7 +46,7 @@ int main() {
 //   }
 
     // close OpenCV windows
-    cv::destroyAllWindows();
+//    cv::destroyAllWindows();
 //    StreamService::StopStream();
 
     return 0;

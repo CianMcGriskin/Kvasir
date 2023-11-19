@@ -100,13 +100,13 @@ void Model::HandleFaceOutput() {
 
     // Print the embeddings to the console
     std::cout << "Face Embeddings: ";
-    for (int j = 0; j < embeddingSize; ++j) {
-        std::cout << embeddingData[j] << " ";
+    for (int i = 0; i < embeddingSize; ++i)
+    {
+        std::cout << embeddingData[i] << " ";
     }
+
     std::cout << std::endl;
 }
-
-
 
 void Model::HandleOutput(float minimumConfidence) {
     // Values taken from output tensor
@@ -116,49 +116,61 @@ void Model::HandleOutput(float minimumConfidence) {
     output = interpreter->typed_output_tensor<float>(0);
 
     int maxConfidenceIndex = -1;
-    float maxConfidence = minimumConfidence;  // Initialize with minimum confidence
+    float maxConfidence = minimumConfidence;
 
     // Find the index with the maximum confidence score above the threshold
-    for (int i = 0; i < numDetections; ++i) {
+    for (int i = 0; i < numDetections; ++i)
+    {
         float class_score = output[i * numValuesPerDetection + 4];
 
-        if (class_score > minimumConfidence && class_score > maxConfidence) {
+        if (class_score > minimumConfidence && class_score > maxConfidence)
+        {
             maxConfidence = class_score;
             maxConfidenceIndex = i;
         }
     }
 
     // If an object above the threshold is found, draw a rectangle around it
-    if (maxConfidenceIndex != -1) {
-        DrawBox(maxConfidenceIndex, maxConfidence);
+    if (maxConfidenceIndex != -1)
+    {
+        DrawBox(maxConfidenceIndex, maxConfidence, numValuesPerDetection);
     }
 }
 
-// Function to handle the graphical side of the output, used to draw boxes around detected people etc.
-void Model::DrawBox(int maxConfidenceIndex, float maxConfidence) {
-    int x_center = static_cast<int>(output[maxConfidenceIndex * 85] * input.cols);  // x_center
-    int y_center = static_cast<int>(output[maxConfidenceIndex * 85 + 1] * input.rows);  // y_center
-    int width = static_cast<int>(output[maxConfidenceIndex * 85 + 2] * input.cols);  // width
-    int height = static_cast<int>(output[maxConfidenceIndex * 85 + 3] * input.rows);  // height
+void Model::DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPerDetection){
+    int x_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection] * input.cols);  // x_center
+    int y_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 1] * input.rows);  // y_center
+    int width = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 2] * input.cols);  // width
+    int height = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 3] * input.rows);  // height
 
-    // Calculate top-left and bottom-right coordinates of the bounding box
+    // Calculate top-left and bottom-right coordinates of the bounding box around the face
     int x = x_center - width / 2;
     int y = y_center - height / 2;
+    int faceHeight = height * 0.33;  // Adjusting the height of the bounding box to focus on the face
+    int faceWidth = width * 0.40;
 
-    std::string classLabel = classLabels[static_cast<int>(output[maxConfidenceIndex * 85])];
+    // Calculate top-left and bottom-right coordinates of the bounding box around the face
+    int faceY = y_center - faceHeight / 3;
+    int faceX = x_center - width / 2;
+
+    faceX = faceX + 30;
+    faceY = faceY - 55;
 
 
-    // Draw rectangle around the detected region
-    cv::rectangle(input, cv::Rect(x, y, width, height), cv::Scalar(0, 255, 0), 2);
+    std::string classLabel = classLabels[static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 4])];
+
+    // Draw rectangle around the detected face region
+    cv::rectangle(input, cv::Rect(faceX, faceY, faceWidth, faceHeight), cv::Scalar(0, 255, 0), 2);
     std::string label = classLabel + ": " + std::to_string(maxConfidence);
 
     int fontFace = cv::FONT_HERSHEY_SIMPLEX;
     double fontScale = 0.5;
     int thickness = 1;
     cv::Size textSize = cv::getTextSize(label, fontFace, fontScale, thickness, nullptr);
-    int textX = x + (width - textSize.width) / 2;
-    int textY = y - 10;  // Adjust the vertical position of the label
+    int textX = faceX + (faceWidth - textSize.width) / 2;
+    int textY = faceY - 10;
     cv::putText(input, label, cv::Point(textX, textY), fontFace, fontScale, cv::Scalar(0, 255, 0), thickness);
+    std::cout << "Face X: " << faceX << ", Face Y: " << faceY << ", Face Width: " << faceWidth << ", Face Height: " << faceHeight << std::endl;
 }
 
 
