@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { S3Client, ListObjectsV2Command  } from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, GetObjectCommand, GetObjectCommandInput  } from "@aws-sdk/client-s3";
 import { LoadingController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
+
+
 
 
 @Component({
@@ -45,9 +47,21 @@ export class DatabasePage implements OnInit {
     };
 
     try {
+      
       const command = new ListObjectsV2Command(params);
-      const data = await this.s3Client.send(command);
+      let data = await this.s3Client.send(command);
       const videos = data.Contents?.filter(obj => obj?.Key?.endsWith('.mp4')) || [];
+
+      let getObjectParams = {
+        Bucket: 'kvasir-storage',
+        Prefix: 'Videos/',
+        Key: videos[0].Key,
+      };
+
+      let objectCommand = new GetObjectCommand(getObjectParams)
+      let testVideo = await this.s3Client.send(objectCommand);
+      let stuff = testVideo.Body?.transformToString();
+      
       return videos;
     } catch (error) {
       console.error('Error:', error);

@@ -6,12 +6,16 @@
 
 <ion-content>
   <ion-list *ngIf="videos && videos.length > 0">
-    <ion-item *ngFor="let video of videos" (click)="playVideo(video.Url)">
+    <ion-item *ngFor="let video of videos">
       {{ extractFileName(video.Key) }}
+      <ion-button (click)="playVideo(video.Key)">Play Video</ion-button>
     </ion-item>
   </ion-list>
-  <ion-label *ngIf="!videos || videos.length === 0">
-    No videos found in the 'Videos' folder.
-  </ion-label>
+  <ion-list>
+
+  <video *ngIf="selectedVideoUrl" controls width="100%">
+    <source [src]="selectedVideoUrl" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 </ion-content>
 
