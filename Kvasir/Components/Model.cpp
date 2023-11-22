@@ -1,12 +1,12 @@
 #include "Model.h"
-
+#include "FaceDetection/FaceDetection.h"
 #include <chrono>
 
 // Constructor of the Model class, passing the model size for image in this case [1, 320, 320, 3]
 Model::Model(int16_t modelSize) {
     modelParam = modelSize;
     input = cv::Mat(modelSize, modelSize, CV_32FC3);
-    classLabels = Model::LoadIdentityLabels("../../Kvasir/labels.txt");
+    // classLabels = Model::LoadIdentityLabels("../../Kvasir/labels.txt");
 }
 
 // Function to load a TensorFlow Lite model from a file
@@ -55,7 +55,7 @@ void Model::HandleImageInput(const std::string& imagePath) {
     input /= 255.0;
 
     // Copy preprocessed image data to the input tensor
-    float* inputImageTensor = interpreter->typed_input_tensor<float>(0);
+    auto* inputImageTensor = interpreter->typed_input_tensor<float>(0);
     std::memcpy(inputImageTensor, input.data, modelParam * modelParam * 3 * sizeof(float));
 
     interpreter->Invoke();
@@ -99,11 +99,17 @@ void Model::HandleFaceOutput() {
     const float* embeddingData = output;
 
     // Print the embeddings to the console
+    std::vector<double> embedding;
+    embedding.reserve(embeddingSize);
+
     std::cout << "Face Embeddings: ";
     for (int i = 0; i < embeddingSize; ++i)
     {
-        std::cout << embeddingData[i] << " ";
+        embedding.emplace_back(embeddingData[i]);
+        std::cout << embeddingData[i] << ", ";
     }
+
+    FaceDetection::CompareFaces(embedding);
 
     std::cout << std::endl;
 }
@@ -144,8 +150,6 @@ void Model::DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPe
     int height = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 3] * input.rows);  // height
 
     // Calculate top-left and bottom-right coordinates of the bounding box around the face
-    int x = x_center - width / 2;
-    int y = y_center - height / 2;
     int faceHeight = height * 0.33;  // Adjusting the height of the bounding box to focus on the face
     int faceWidth = width * 0.40;
 

@@ -1,8 +1,8 @@
 ﻿#include "./Kvasir.h"
-#include "../../Kvasir/Components/FaceDetection/FaceDetection.h"
+
 int main() {
     // Load the model using model class
-//    Model modelInstance(320);
+    Model modelInstance(160);
     CameraControl camera;
     FaceDetection faceDetection = FaceDetection();
 //    cv::VideoCapture cap(0);
@@ -16,11 +16,17 @@ int main() {
     cv::dnn::Net faceDetectionModel = faceDetection.GetModel();
     faceDetection.DetectFaces(image, 0.5);
 
-//    modelInstance.LoadModel("../../Kvasir/Components/Models/yolov5.tflite");
-//    modelInstance.BuildInterpreter();
+    modelInstance.LoadModel("../../Kvasir/Components/Models/facenet.tflite");
+    modelInstance.BuildInterpreter();
 
-//    modelInstance.HandleImageInput("../../Kvasir/capture.jpg");
-//    modelInstance.HandleOutput(0.5);
+    modelInstance.HandleImageInput("../../Kvasir/Components/Output/cropped_face_1.jpg");
+    if(faceDetection.GetNumOfFacesDetected() > 0){
+        modelInstance.HandleFaceOutput();
+    } else {
+        std::cout << "No faces detected.";
+    }
+
+
 
 //    cv::imshow("Detection Results", modelInstance.GetInput());
 //    cv::waitKey(0);
