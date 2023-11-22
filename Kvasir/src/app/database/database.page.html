@@ -11,11 +11,14 @@
       <ion-button (click)="playVideo(video.Key)">Play Video</ion-button>
     </ion-item>
   </ion-list>
-  <ion-list>
 
-  <video *ngIf="selectedVideoUrl" controls width="100%">
-    <source [src]="selectedVideoUrl" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <div class="video-container" >
+    <video *ngIf="selectedVideoUrl" controls width="40%">
+      <source [src]="selectedVideoUrl" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+  
+
 </ion-content>
 

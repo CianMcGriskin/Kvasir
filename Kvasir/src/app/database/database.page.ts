@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { S3Client, ListObjectsV2Command, GetObjectCommand, GetObjectCommandInput  } from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
 import { LoadingController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 
 
@@ -13,9 +14,13 @@ import { environment } from '../../environments/environment';
 })
 export class DatabasePage implements OnInit {
 
-  videos: any[] | undefined;
+  videos: any[];
   s3Client: S3Client;
-  constructor(private loadingController: LoadingController) { 
+  selectedVideoUrl: String | undefined;
+
+  constructor(private loadingController: LoadingController, private sanitizer: DomSanitizer) { 
+    this.videos = [];
+
     this.s3Client = new S3Client({
       region: environment.REGION,
       credentials: {
@@ -41,7 +46,7 @@ export class DatabasePage implements OnInit {
   }
 
   async listVideosFromS3Folder() {
-    const params = {
+    let params = {
       Bucket: 'kvasir-storage',
       Prefix: 'Videos/',
     };
@@ -52,18 +57,10 @@ export class DatabasePage implements OnInit {
       let data = await this.s3Client.send(command);
       const videos = data.Contents?.filter(obj => obj?.Key?.endsWith('.mp4')) || [];
 
-      let getObjectParams = {
-        Bucket: 'kvasir-storage',
-        Prefix: 'Videos/',
-        Key: videos[0].Key,
-      };
-
-      let objectCommand = new GetObjectCommand(getObjectParams)
-      let testVideo = await this.s3Client.send(objectCommand);
-      let stuff = testVideo.Body?.transformToString();
-      
       return videos;
-    } catch (error) {
+
+    } 
+    catch (error) {
       console.error('Error:', error);
       throw error;
     }
@@ -74,9 +71,33 @@ export class DatabasePage implements OnInit {
     return parts[parts.length - 1];
   }
 
-  async playVideo(videoUrl: string) {
+  async playVideo(key: string) {
+    this.selectedVideoUrl = undefined;
 
-    //TODO
+    let params = {
+      Bucket: 'kvasir-storage',
+      Key: key,
+    };
 
+    try
+    {
+      let objectCommand = new GetObjectCommand(params)
+    let testVideo = await this.s3Client.send(objectCommand);
+
+    let videoData = await testVideo.Body?.transformToByteArray();
+    if(videoData){
+      let videoBlob = new Blob([videoData], { type: 'video/mp4' }); // Adjust MIME 
+      this.selectedVideoUrl = URL.createObjectURL(videoBlob);
+    console.log(this.selectedVideoUrl);
+    }
+    else{
+      this.selectedVideoUrl = undefined;
+      console.error("Invalid video URL");
+    }
+    }catch(error){
+      console.error('Error:', error);
+      throw error;
+    }
+    
   }
 }
