@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
+#include "FaceDetection/FaceDetection.h"
+#include <chrono>
+#include "FaceStorage/FaceStorage.h"
 
 class Model {
 public:

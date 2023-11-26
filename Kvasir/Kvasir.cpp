@@ -20,9 +20,21 @@ int main() {
     modelInstance.BuildInterpreter();
 
     modelInstance.HandleImageInput("../../Kvasir/Components/Output/cropped_face_1.jpg");
-    if(faceDetection.GetNumOfFacesDetected() > 0){
+    if(faceDetection.GetNumOfFacesDetected() > 0)
+    {
         modelInstance.HandleFaceOutput();
-    } else {
+        std::cout << "Do you want to save this face? (y/n): ";
+        char choice;
+        std::cin >> choice;
+        if (choice == 'y' || choice == 'Y') {
+            FaceStorage::SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
+            std::cout << "Face saved successfully!" << std::endl;
+        } else {
+            std::cout << "Face not saved." << std::endl;
+        }
+    }
+    else
+    {
         std::cout << "No faces detected.";
     }
 

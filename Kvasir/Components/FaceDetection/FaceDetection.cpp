@@ -1,18 +1,20 @@
 #include "FaceDetection.h"
 
+// Initialisation of variable
 unsigned long FaceDetection::numOfFacesDetected = 0;
 
+// Constructor to initalise caffe model
 FaceDetection::FaceDetection() {
     std::string protoPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/deploy.prototxt";
     std::string caffeModelPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/res10_300x300_ssd_iter_140000_fp16.caffemodel";
     faceDetectionModel = cv::dnn::readNetFromCaffe(protoPath, caffeModelPath);
 }
 
+// Function used to detect faces within an image
 void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool display) {
     auto startTime = std::chrono::high_resolution_clock::now();
     int imageHeight = image.rows;
     int imageWidth = image.cols;
-
 
     // Mean and size for the model params
     cv::Size size = cv::Size(300, 300);
@@ -21,6 +23,7 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     // Clone image to process it
     cv::Mat outputImage = image.clone();
 
+    // Save face images in a vector
     std::vector<cv::Mat> croppedFaces;
 
     // Process image
@@ -31,11 +34,12 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     faceDetectionModel.setInput(preprocessedImage);
     cv::Mat results = faceDetectionModel.forward();
 
+
     cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());
 
     std::string outputDirectory = "../../Kvasir/Components/Output";
 
-    for (int i = 0; i < detectionMat.rows; i++) {
+    for (int i = 0; i < detectionMat.rows; ++i) {
         float confidence = detectionMat.at<float>(i, 2);
 
         if (confidence > confidenceLevel)

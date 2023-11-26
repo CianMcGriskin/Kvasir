@@ -1,6 +1,4 @@
 #include "Model.h"
-#include "FaceDetection/FaceDetection.h"
-#include <chrono>
 
 // Constructor of the Model class, passing the model size for image in this case [1, 320, 320, 3]
 Model::Model(int16_t modelSize) {
@@ -100,16 +98,16 @@ void Model::HandleFaceOutput() {
 
     // Print the embeddings to the console
     std::vector<double> embedding;
-    embedding.reserve(embeddingSize);
+    faceEmbeddings.reserve(embeddingSize);
 
     std::cout << "Face Embeddings: ";
     for (int i = 0; i < embeddingSize; ++i)
     {
-        embedding.emplace_back(embeddingData[i]);
+        faceEmbeddings.emplace_back(embeddingData[i]);
         std::cout << embeddingData[i] << ", ";
     }
 
-    FaceDetection::CompareFaces(embedding);
+    FaceDetection::CompareFaces(faceEmbeddings);
 
     std::cout << std::endl;
 }
@@ -184,4 +182,8 @@ std::unique_ptr<tflite::FlatBufferModel>& Model::GetModel() {
 
 cv::Mat Model::GetInput() {
     return input;
+}
+
+std::vector<double> Model::GetFaceEmbeddings() {
+    return faceEmbeddings;
 }

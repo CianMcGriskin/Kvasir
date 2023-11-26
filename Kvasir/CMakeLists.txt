@@ -29,7 +29,9 @@ add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/Model.cpp" "Components
         Components/WebserverCommunication/StreamService.cpp
         Components/WebserverCommunication/StreamService.h
         Components/FaceDetection/FaceDetection.cpp
-        Components/FaceDetection/FaceDetection.h)
+        Components/FaceDetection/FaceDetection.h
+        Components/FaceStorage/FaceStorage.cpp
+        Components/FaceStorage/FaceStorage.h)
 
 # Link TensorFlow lite library
 target_link_libraries(Kvasir tensorflow-lite)
