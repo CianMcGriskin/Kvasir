@@ -22,6 +22,10 @@ add_subdirectory(
   "./Dependencies/cpp-mjpeg-streamer"
   "${CMAKE_CURRENT_BINARY_DIR}/cpp-mjpeg-streamer-build")
   
+add_subdirectory(
+  "./Dependencies/json"
+  "${CMAKE_CURRENT_BINARY_DIR}/json")
+  
 # Add source to this project's executable.
 add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/Model.cpp" "Components/Model.h"
         Components/CameraControl.cpp
@@ -40,3 +44,5 @@ target_link_libraries(Kvasir tensorflow-lite)
 target_link_libraries(Kvasir tensorflow-lite ${OpenCV_LIBS})
 
 target_link_libraries(Kvasir nadjieb_mjpeg_streamer::nadjieb_mjpeg_streamer)
+
+target_link_libraries(Kvasir nlohmann_json::nlohmann_json)

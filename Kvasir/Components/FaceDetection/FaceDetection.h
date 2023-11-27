@@ -11,7 +11,7 @@ class FaceDetection {
 public:
     FaceDetection();
     void DetectFaces(cv::Mat &image, float confidenceLevel, bool display = true);
-    static double CompareFaces(std::vector<double> vec, short size = 512);
+    static double CompareFaces(std::vector<double> currentFace, std::vector<double> savedFace, short size = 512);
     size_t GetNumOfFacesDetected();
     cv::dnn::Net GetModel();
 private:

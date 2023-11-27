@@ -5,6 +5,7 @@ int main() {
     Model modelInstance(160);
     CameraControl camera;
     FaceDetection faceDetection = FaceDetection();
+    FaceStorage faceStorage = FaceStorage();
 //    cv::VideoCapture cap(0);
 //    cv::Mat frame;
 
@@ -19,22 +20,20 @@ int main() {
     modelInstance.LoadModel("../../Kvasir/Components/Models/facenet.tflite");
     modelInstance.BuildInterpreter();
 
+
     modelInstance.HandleImageInput("../../Kvasir/Components/Output/cropped_face_1.jpg");
-    if(faceDetection.GetNumOfFacesDetected() > 0)
-    {
+    if (faceDetection.GetNumOfFacesDetected() > 0) {
         modelInstance.HandleFaceOutput();
         std::cout << "Do you want to save this face? (y/n): ";
         char choice;
         std::cin >> choice;
         if (choice == 'y' || choice == 'Y') {
-            FaceStorage::SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
+            faceStorage.SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
             std::cout << "Face saved successfully!" << std::endl;
         } else {
             std::cout << "Face not saved." << std::endl;
         }
-    }
-    else
-    {
+    } else {
         std::cout << "No faces detected.";
     }
 
@@ -63,9 +62,9 @@ int main() {
 //       }
 //   }
 
-    // close OpenCV windows
+        // close OpenCV windows
 //    cv::destroyAllWindows();
 //    StreamService::StopStream();
 
-    return 0;
-}
+        return 0;
+    }
