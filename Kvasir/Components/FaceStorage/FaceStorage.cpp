@@ -1,45 +1,54 @@
-#include <iostream>
 #include "FaceStorage.h"
-#include <fstream>
-#include <vector>
 
 FaceStorage::FaceStorage() {
     std::ifstream infile("../faces.json");
-    if (infile.is_open()) {
-        infile >> jsonData;
-    } else {
-        std::cerr << "Unable to open faces.json";
+    if (infile.is_open())
+    {
+        try
+        {
+            // If the file exists but has nothing in it, initialise the json file.
+            if (infile.peek() == std::ifstream::traits_type::eof())
+            {
+                jsonData = {{"faces", nlohmann::json::array()}};
+                writeDataToFile();
+            }
+            else
+            {
+                infile >> jsonData;
+
+                // Check if the JSON data is empty or null or if "faces" key is missing
+                if (jsonData.empty() || !jsonData.contains("faces") || jsonData["faces"].empty())
+                {
+                    // Initialize jsonData with a default structure
+                    jsonData = {{"faces", nlohmann::json::array()}};
+                    writeDataToFile();
+                }
+            }
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Error while parsing JSON: " << e.what() << std::endl;
+        }
+    } else
+    {
+        std::cerr << "Unable to open faces.json" << std::endl;
     }
 }
-
-void FaceStorage::AddFace(const std::vector<double>& face)
-{
-    faces.emplace_back(face);
-}
-
-//std::vector<double> FaceStorage::RetrieveFace(int index) {
-//    if(!faces.empty())
-//    {
-//        return faces[index];
-//    }
-//    else
-//    {
-//        std::cerr << "JSON object does not contain faces.";
-//    }
-//}
 
 std::vector<double> FaceStorage::RetrieveFace(int index) {
+    // Making sure the index exists before retrieval.
     if (!jsonData["faces"].empty() && index >= 0 && index < jsonData["faces"].size())
     {
-        std::cout << "Retrieving face at index " << index << std::endl;
         return jsonData["faces"][index].get<std::vector<double>>();
-    } else {
+    }
+    else
+    {
         std::cerr << "\nInvalid index or JSON object does not contain faces at the given index." << std::endl;
-        return std::vector<double>();
+        return {};
     }
 }
 
-void FaceStorage::SaveFaceToJSON(std::vector<double> face) {
+void FaceStorage::SaveFaceToJSON(const std::vector<double>& face) {
     std::ifstream infile("../faces.json");
 
     if (infile.is_open())
@@ -60,19 +69,25 @@ nlohmann::json FaceStorage::GetJsonData() {
 }
 
 void FaceStorage::DeleteFace(int index) {
-    if (!jsonData["faces"].empty() && index >= 0 && index < jsonData["faces"].size()) {
+    if (!jsonData["faces"].empty() && index >= 0 && index < jsonData["faces"].size())
+    {
         jsonData["faces"].erase(jsonData["faces"].begin() + index); // Remove the face at the given index
         writeDataToFile(); // Write the updated JSON data to the file
-    } else {
+    }
+    else
+    {
         std::cerr << "Invalid index or JSON object does not contain faces at the given index.";
     }
 }
 
 void FaceStorage::writeDataToFile() {
-    std::ofstream outfile("faces.json");
-    if (outfile.is_open()) {
+    std::ofstream outfile("../faces.json");
+    if (outfile.is_open())
+    {
         outfile << std::setw(4) << jsonData << std::endl;
-    } else {
+    }
+    else
+    {
         std::cerr << "Unable to open faces.json for writing.";
     }
 }

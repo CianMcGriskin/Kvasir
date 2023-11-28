@@ -95,7 +95,6 @@ void Model::HandleFaceOutput() {
     // Get the output tensor from the interpreter
     output = interpreter->typed_output_tensor<float>(0);
 
-    // Assuming there's only one detection in the output tensor (shape: [1, 512])
     const float* embeddingData = output;
 
     // Print the embeddings to the console
@@ -109,11 +108,15 @@ void Model::HandleFaceOutput() {
         std::cout << embeddingData[i] << ", ";
     }
 
+    std::cerr << faceStorage.GetJsonData().size();
 
-//    if(!faceStorage.GetJsonData().empty())
-//    {
-    FaceDetection::CompareFaces(faceEmbeddings, faceStorage.RetrieveFace(2));
-//    }
+    if(!faceStorage.GetJsonData().contains("faces") || !faceStorage.GetJsonData()["faces"].empty())
+    {
+        for(size_t i = 0; i <= faceStorage.GetJsonData().size(); ++i)
+        {
+            FaceDetection::CompareFaces(faceEmbeddings, faceStorage.RetrieveFace(i));
+        }
+    }
 
     std::cout << std::endl;
 }

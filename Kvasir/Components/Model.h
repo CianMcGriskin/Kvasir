@@ -9,7 +9,7 @@
 
 class Model {
 public:
-    // Constructor for the model class assigned model LxW needed
+    // Constructor for the model class, assigned model LxW needed
     Model(int16_t modelSize);
 
     // Function used to load model from File
