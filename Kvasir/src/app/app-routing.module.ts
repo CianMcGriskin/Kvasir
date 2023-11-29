@@ -18,6 +18,10 @@ const routes: Routes = [
     path: 'database',
     loadChildren: () => import('./database/database.module').then( m => m.DatabasePageModule)
   },
+  {
+    path: 'management',
+    loadChildren: () => import('./management/management.module').then( m => m.ManagementPageModule)
+  },
 
 ];
 

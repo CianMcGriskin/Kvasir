@@ -12,13 +12,28 @@
     </ion-item>
   </ion-list>
 
-  <div class="video-container" >
-    <video *ngIf="selectedVideoUrl" controls width="40%">
-      <source [src]="selectedVideoUrl" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+  <div *ngIf="selectedVideoUrl">
+    <div class="video-container">
+
+      <!-- Display Selected Video-->
+      <video controls #videoPlayer width="40%">
+        <source [src]="selectedVideoUrl" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+
+      <!-- Display Cropped images -->
+      <swiper-container pager #slides  *ngFor="let face of detectedFaces">
+        <swiper-slide>
+          <img [src]="face" alt="Face">
+        </swiper-slide>
+      </swiper-container>
+
+    </div>
+    <div class="video-container">
+      <ion-button (click)="detectFaces()">Detect Faces</ion-button>
+    </div>
+
   </div>
-  
+
 
 </ion-content>
-
