@@ -1,0 +1,24 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Barred List</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div style="padding: 3%">
+    <ion-title>Add Files</ion-title>
+    <input type="file" (change)="onFileSelected($event)" accept=".jpg, .jpeg, .png" >
+  </div>
+
+  <ion-list *ngIf="images && images.length > 0">
+    <ion-item *ngFor="let image of images">
+      {{ extractFileName(image.Key) }}
+      <ion-button (click)="showImage(image.Key)">Show Image</ion-button>
+      <ion-button (click)="deleteImage(image.Key)" color="danger">Delete Image</ion-button>
+    </ion-item>
+  </ion-list>
+
+  <img [src]="selectedImageUrl" alt="" width="40%">
+
+</ion-content>

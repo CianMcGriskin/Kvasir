@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>database</ion-title>
+    <ion-title>Videos</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -21,12 +21,18 @@
         Your browser does not support the video tag.
       </video>
 
+      
+
       <!-- Display Cropped images -->
-      <swiper-container pager #slides  *ngFor="let face of detectedFaces">
-        <swiper-slide>
-          <img [src]="face" alt="Face">
-        </swiper-slide>
-      </swiper-container>
+      <!-- <swiper-container pager #slides >
+          <swiper-slide *ngFor="let face of detectedFaces">
+            <img [src]="face" alt="Face">
+          </swiper-slide>
+      </swiper-container> -->
+
+      <ng-container *ngFor="let face of detectedFaces">
+        <img [src]="face" alt="Face">
+      </ng-container>
 
     </div>
     <div class="video-container">
@@ -36,4 +42,4 @@
   </div>
 
 
-</ion-content>
+</ion-content> 

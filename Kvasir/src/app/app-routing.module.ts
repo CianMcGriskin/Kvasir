@@ -22,6 +22,10 @@ const routes: Routes = [
     path: 'management',
     loadChildren: () => import('./management/management.module').then( m => m.ManagementPageModule)
   },
+  {
+    path: 'barred-list',
+    loadChildren: () => import('./barred-list/barred-list.module').then( m => m.BarredListPageModule)
+  },
 
 ];
 
