@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 from sort.sort import *
-from util import *
+from Utilities import *
 
 results = {}
 mot_tracker = Sort()
