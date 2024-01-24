@@ -12,7 +12,7 @@ import { LoadingController } from '@ionic/angular';
 })
 export class LivestreamPage implements OnInit {
 
-  streamUrl: string = 'http://192.168.1.8:8080';
+  streamUrl: string = 'http://192.168.1.13:8080';
   isCameraOffline: boolean = false;
   streamImage: any;
 

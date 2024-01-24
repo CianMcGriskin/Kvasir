@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import * as AWS from 'aws-sdk';
-import { environment } from 'src/environments/environment';
+import { Auth } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -10,8 +10,17 @@ import { environment } from 'src/environments/environment';
 })
 export class HomePage {
 
-  constructor(private navController: NavController) {
+  constructor(private navController: NavController, private auth: Auth, private router: Router) {
     
+  }
+
+  async logout() {
+    try {
+      await this.auth.signOut();
+      this.router.navigateByUrl('/login'); // Redirect to login page after logout
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   }
 
   goToLivestreamPage() {
