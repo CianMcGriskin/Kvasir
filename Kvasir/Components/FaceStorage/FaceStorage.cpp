@@ -35,11 +35,11 @@ FaceStorage::FaceStorage() {
     }
 }
 
-std::vector<double> FaceStorage::RetrieveFace(int index) {
+std::vector<float> FaceStorage::RetrieveFace(int index) {
     // Making sure the index exists before retrieval.
     if (!jsonData["faces"].empty() && index >= 0 && index < jsonData["faces"].size())
     {
-        return jsonData["faces"][index].get<std::vector<double>>();
+        return jsonData["faces"][index].get<std::vector<float>>();
     }
     else
     {
@@ -48,7 +48,7 @@ std::vector<double> FaceStorage::RetrieveFace(int index) {
     }
 }
 
-void FaceStorage::SaveFaceToJSON(const std::vector<double>& face) {
+void FaceStorage::SaveFaceToJSON(const std::vector<float>& face) {
     std::ifstream infile("../faces.json");
 
     if (infile.is_open())

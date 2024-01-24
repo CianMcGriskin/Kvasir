@@ -90,7 +90,7 @@ void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
 
 void Model::HandleFaceOutput() {
     // Number of dimensions in the embedding vector
-    const int embeddingSize = 512;
+    const size_t embeddingSize = 512;
 
     // Get the output tensor from the interpreter
     output = interpreter->typed_output_tensor<float>(0);
@@ -98,17 +98,18 @@ void Model::HandleFaceOutput() {
     const float* embeddingData = output;
 
     // Print the embeddings to the console
-    std::vector<double> embedding;
+    std::vector<float> embedding;
     faceEmbeddings.reserve(embeddingSize);
 
     std::cout << "Face Embeddings: ";
-    for (int i = 0; i < embeddingSize; ++i)
+    for (size_t i = 0; i < embeddingSize; ++i)
     {
         faceEmbeddings.emplace_back(embeddingData[i]);
         std::cout << embeddingData[i] << ", ";
     }
 
-    std::cerr << faceStorage.GetJsonData().size();
+    size_t sizeInBytes = sizeof(faceEmbeddings);
+    std::cout << sizeInBytes;
 
     if(!faceStorage.GetJsonData().contains("faces") || !faceStorage.GetJsonData()["faces"].empty())
     {
@@ -123,8 +124,8 @@ void Model::HandleFaceOutput() {
 
 void Model::HandleOutput(float minimumConfidence) {
     // Values taken from output tensor
-    const int numValuesPerDetection = 85;
-    const int numDetections = 6300;
+    const unsigned char numValuesPerDetection = 85;
+    const size_t numDetections = 6300;
 
     output = interpreter->typed_output_tensor<float>(0);
 
@@ -132,7 +133,7 @@ void Model::HandleOutput(float minimumConfidence) {
     float maxConfidence = minimumConfidence;
 
     // Find the index with the maximum confidence score above the threshold
-    for (int i = 0; i < numDetections; ++i)
+    for (uint16_t i = 0; i < numDetections; ++i)
     {
         float class_score = output[i * numValuesPerDetection + 4];
 
@@ -151,18 +152,18 @@ void Model::HandleOutput(float minimumConfidence) {
 }
 
 void Model::DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPerDetection){
-    int x_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection] * input.cols);  // x_center
-    int y_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 1] * input.rows);  // y_center
-    int width = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 2] * input.cols);  // width
-    int height = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 3] * input.rows);  // height
+    size_t x_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection] * input.cols);  // x_center
+    size_t y_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 1] * input.rows);  // y_center
+    size_t width = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 2] * input.cols);  // width
+    size_t height = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 3] * input.rows);  // height
 
     // Calculate top-left and bottom-right coordinates of the bounding box around the face
-    int faceHeight = height * 0.33;  // Adjusting the height of the bounding box to focus on the face
-    int faceWidth = width * 0.40;
+    size_t faceHeight = height * 0.33;  // Adjusting the height of the bounding box to focus on the face
+    size_t faceWidth = width * 0.40;
 
     // Calculate top-left and bottom-right coordinates of the bounding box around the face
-    int faceY = y_center - faceHeight / 3;
-    int faceX = x_center - width / 2;
+    size_t faceY = y_center - faceHeight / 3;
+    size_t faceX = x_center - width / 2;
 
     faceX = faceX + 30;
     faceY = faceY - 55;
@@ -175,8 +176,8 @@ void Model::DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPe
     std::string label = classLabel + ": " + std::to_string(maxConfidence);
 
     int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-    double fontScale = 0.5;
-    int thickness = 1;
+    float fontScale = 0.5;
+    unsigned char thickness = 1;
     cv::Size textSize = cv::getTextSize(label, fontFace, fontScale, thickness, nullptr);
     int textX = faceX + (faceWidth - textSize.width) / 2;
     int textY = faceY - 10;
@@ -193,6 +194,6 @@ cv::Mat Model::GetInput() {
     return input;
 }
 
-std::vector<double> Model::GetFaceEmbeddings() {
+std::vector<float> Model::GetFaceEmbeddings() {
     return faceEmbeddings;
 }

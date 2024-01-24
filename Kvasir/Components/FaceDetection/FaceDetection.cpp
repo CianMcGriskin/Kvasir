@@ -1,7 +1,7 @@
 #include "FaceDetection.h"
 
 // Initialisation of variable
-unsigned long FaceDetection::numOfFacesDetected = 0;
+unsigned int FaceDetection::numOfFacesDetected = 0;
 
 // Constructor to initalise caffe model
 FaceDetection::FaceDetection() {
@@ -88,10 +88,10 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     std::cout << "DetectFaces execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
-double FaceDetection::CompareFaces(std::vector<double> currentFace, std::vector<double> savedFace, short size) {
-    double dotProduct = 0.0;
-    double normA = 0.0;
-    double normB = 0.0;
+float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<float> savedFace, short size) {
+    float dotProduct = 0.0;
+    float normA = 0.0;
+    float normB = 0.0;
 
     if (currentFace.size() < size || savedFace.size() < size) {
         std::cerr << "\nFace vectors do not not meet sufficient elements for comparison.\n";

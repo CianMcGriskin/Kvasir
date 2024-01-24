@@ -11,10 +11,10 @@ public:
     FaceStorage();
 
     // Retrieve face data based on index
-    std::vector<double> RetrieveFace(int index);
+    std::vector<float> RetrieveFace(int index);
 
     // Save face data to the faces array in the json file.
-    void SaveFaceToJSON(const std::vector<double>& face);
+    void SaveFaceToJSON(const std::vector<float>& face);
 
     // Returns json data
     nlohmann::json GetJsonData();

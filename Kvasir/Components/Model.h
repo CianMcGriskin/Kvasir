@@ -37,7 +37,7 @@ public:
 
     cv::Mat GetInput();
 
-    std::vector<double> GetFaceEmbeddings();
+    std::vector<float> GetFaceEmbeddings();
 
 private:
     float* inputTensor;
@@ -47,7 +47,7 @@ private:
     std::unique_ptr<tflite::Interpreter> interpreter;
     cv::Mat input;
     float* output;
-    std::vector<double> faceEmbeddings;
+    std::vector<float> faceEmbeddings;
 
     void DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPerDetection);
 };
