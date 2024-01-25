@@ -15,7 +15,7 @@ public:
     size_t GetNumOfFacesDetected();
     cv::dnn::Net GetModel();
 private:
-    static unsigned int numOfFacesDetected;
+    static unsigned char numOfFacesDetected;
     cv::dnn::Net faceDetectionModel;
 };
 

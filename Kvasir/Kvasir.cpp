@@ -1,14 +1,14 @@
 ﻿#include "./Kvasir.h"
 
-int main() {
+int main(){
     // Load the model using model class
+    Utils::ClearDirectory("../../Kvasir/Components/Output");
     Model modelInstance(160);
     CameraControl camera;
     FaceDetection faceDetection = FaceDetection();
     FaceStorage faceStorage = FaceStorage();
 //    cv::VideoCapture cap(0);
 //    cv::Mat frame;
-
 
     // Video input and resolution size
     camera.TakePicture("../../Kvasir/capture.jpg");
@@ -20,24 +20,32 @@ int main() {
     modelInstance.LoadModel("../../Kvasir/Components/Models/facenet.tflite");
     modelInstance.BuildInterpreter();
 
+    // If face was detected within a frame
+    if (faceDetection.GetNumOfFacesDetected() > 0)
+    {
+        // Loop through faces found in current frame
+        for(size_t i = 0; i < faceDetection.GetNumOfFacesDetected(); ++i)
+        {
+            modelInstance.HandleImageInput("../../Kvasir/Components/Output/cropped_face_" + std::to_string((i+1)) + ".jpg");
 
-    modelInstance.HandleImageInput("../../Kvasir/Components/Output/cropped_face_1.jpg");
-    if (faceDetection.GetNumOfFacesDetected() > 0) {
-        modelInstance.HandleFaceOutput();
-        std::cout << "Do you want to save this face? (y/n): ";
-        char choice;
-        std::cin >> choice;
-        if (choice == 'y' || choice == 'Y') {
-            faceStorage.SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
-            std::cout << "Face saved successfully!" << std::endl;
-        } else {
-            std::cout << "Face not saved." << std::endl;
+            modelInstance.HandleFaceOutput();
+
+            std::cout << "Do you want to save this face? (y/n): ";
+            char choice;
+            std::cin >> choice;
+            if (choice == 'y' || choice == 'Y')
+            {
+                faceStorage.SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
+                std::cout << "Face saved successfully!" << std::endl;
+            }
+            else
+            {
+                std::cout << "Face not saved." << std::endl;
+            }
         }
     } else {
         std::cout << "No faces detected.";
     }
-
-
 
 //    cv::imshow("Detection Results", modelInstance.GetInput());
 //    cv::waitKey(0);
@@ -65,6 +73,5 @@ int main() {
         // close OpenCV windows
 //    cv::destroyAllWindows();
 //    StreamService::StopStream();
-
         return 0;
-    }
+}

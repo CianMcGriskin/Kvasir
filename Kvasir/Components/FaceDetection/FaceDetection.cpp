@@ -1,7 +1,7 @@
 #include "FaceDetection.h"
 
 // Initialisation of variable
-unsigned int FaceDetection::numOfFacesDetected = 0;
+unsigned char FaceDetection::numOfFacesDetected = 0;
 
 // Constructor to initalise caffe model
 FaceDetection::FaceDetection() {
@@ -36,8 +36,6 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
 
 
     cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());
-
-    std::string outputDirectory = "../../Kvasir/Components/Output";
 
     for (int i = 0; i < detectionMat.rows; ++i) {
         float confidence = detectionMat.at<float>(i, 2);
@@ -76,6 +74,7 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
         cv::waitKey(0);
     }
 
+    std::string outputDirectory = "../../Kvasir/Components/Output";
     for (size_t i = 0; i < croppedFaces.size(); ++i) {
         std::string filename = outputDirectory + "/cropped_face_" + std::to_string(i + 1) + ".jpg";
         cv::imwrite(filename, croppedFaces[i]);
@@ -103,14 +102,15 @@ float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<fl
     for (size_t i = 0; i < size; ++i)
     {
         dotProduct += savedFace[i] * currentFace[i];
-        normA += std::pow(savedFace[i], 2);
-        normB += std::pow(currentFace[i], 2);
+        normA += savedFace[i] * savedFace[i];
+        normB += currentFace[i] * currentFace[i];
     }
 
     if (normA == 0 || normB == 0)
     {
         return 0.0;
     }
+
     std::cout << "\nSimilarity: " << dotProduct / (std::sqrt(normA) * std::sqrt(normB));
     return dotProduct / (std::sqrt(normA) * std::sqrt(normB));
 }
