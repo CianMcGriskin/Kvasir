@@ -36,15 +36,32 @@ def buildTensorFlowLite():
     except subprocess.CalledProcessError as e:
         print(f"TensorFlow Lite successfully built.")
 
+# Function to build AWS SDK for C++
+def buildAWSSDK():
+    print("Building AWS SDK for C++...")
+    aws_sdk_path = os.path.join(sourceFolder, "Dependencies", "aws-sdk-cpp")
+    build_path = os.path.join(aws_sdk_path, "build")
+
+    os.makedirs(build_path, exist_ok=True)
+    try:
+        subprocess.run(["cmake", "..", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_INSTALL_PREFIX=./install", "-DBUILD_ONLY=\"s3\""], cwd=build_path, check=True)
+        subprocess.run(["cmake", "--build", ".", "--config=Debug"], cwd=build_path, check=True)
+        subprocess.run(["cmake", "--install", ".", "--config=Debug"], cwd=build_path, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"AWS SDK for C++ successfully built.")
+
 parser = argparse.ArgumentParser(description='Clone and build specific repositories.')
 parser.add_argument('-t', '--tensorflow', action='store_true', help='Build TensorFlow')
 parser.add_argument('-o', '--opencv', action='store_true', help='Build OpenCV')
+parser.add_argument('-aws', '--aws_sdk', action='store_true', help='Build AWS SDK for C++')
 args = parser.parse_args()
 
 if args.tensorflow:
     buildTensorFlowLite()
 if args.opencv:
     buildOpenCV()
+if args.aws_sdk:
+    buildAWSSDK()
 
 # Display help message if no arguments provided
 if not (args.tensorflow or args.opencv):

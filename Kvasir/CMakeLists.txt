@@ -8,6 +8,8 @@ project(Kvasir)
 set(OpenCV_DIR "./Dependencies/OpenCV/build")
 find_package(OpenCV REQUIRED)
 
+find_package(AWSSDK REQUIRED COMPONENTS s3)
+
 set(TENSORFLOW_SOURCE_DIR "" CACHE PATH
   "Directory that contains the TensorFlow project" )
 
@@ -48,3 +50,5 @@ target_link_libraries(Kvasir tensorflow-lite ${OpenCV_LIBS})
 target_link_libraries(Kvasir nadjieb_mjpeg_streamer::nadjieb_mjpeg_streamer)
 
 target_link_libraries(Kvasir nlohmann_json::nlohmann_json)
+
+target_link_libraries(Kvasir ${AWSSDK_LINK_LIBRARIES})

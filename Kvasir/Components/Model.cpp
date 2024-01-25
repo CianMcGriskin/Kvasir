@@ -108,9 +108,6 @@ void Model::HandleFaceOutput() {
         std::cout << embeddingData[i] << ", ";
     }
 
-    size_t sizeInBytes = sizeof(faceEmbeddings);
-    std::cout << sizeInBytes;
-
     if(!faceStorage.GetJsonData().contains("faces") || !faceStorage.GetJsonData()["faces"].empty())
     {
         for(size_t i = 0; i <= faceStorage.GetJsonData().size(); ++i)
@@ -167,7 +164,6 @@ void Model::DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPe
 
     faceX = faceX + 30;
     faceY = faceY - 55;
-
 
     std::string classLabel = classLabels[static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 4])];
 
