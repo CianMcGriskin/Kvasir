@@ -1,12 +1,14 @@
 ﻿#include "./Kvasir.h"
 
 int main(){
+    S3Communication::initAws();
+    S3Communication::readJsonFile("../json/facesV2.json");
+    S3Communication::shutdownAWS();
     // Load the model using model class
     Utils::ClearDirectory("../../Kvasir/Components/Output");
-    Model modelInstance(160);
+
     CameraControl camera;
     FaceDetection faceDetection = FaceDetection();
-    FaceStorage faceStorage = FaceStorage();
 //    cv::VideoCapture cap(0);
 //    cv::Mat frame;
 
@@ -17,6 +19,7 @@ int main(){
     cv::dnn::Net faceDetectionModel = faceDetection.GetModel();
     faceDetection.DetectFaces(image, 0.5);
 
+    Model modelInstance(160);
     modelInstance.LoadModel("../../Kvasir/Components/Models/facenet.tflite");
     modelInstance.BuildInterpreter();
 
@@ -35,6 +38,7 @@ int main(){
             std::cin >> choice;
             if (choice == 'y' || choice == 'Y')
             {
+                FaceStorage faceStorage = FaceStorage();
                 faceStorage.SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
                 std::cout << "Face saved successfully!" << std::endl;
             }

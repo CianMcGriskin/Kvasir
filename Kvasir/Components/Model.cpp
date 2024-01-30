@@ -1,7 +1,5 @@
 #include "Model.h"
 
-FaceStorage faceStorage;
-
 // Constructor of the Model class, passing the model size for image in this case [1, 320, 320, 3]
 Model::Model(int16_t modelSize) {
     modelParam = modelSize;
@@ -89,6 +87,9 @@ void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
 }
 
 void Model::HandleFaceOutput() {
+    FaceStorage faceStorage;
+
+
     // Number of dimensions in the embedding vector
     const size_t embeddingSize = 512;
 
@@ -110,12 +111,11 @@ void Model::HandleFaceOutput() {
 
     if(!faceStorage.GetJsonData().contains("faces") || !faceStorage.GetJsonData()["faces"].empty())
     {
-        for(size_t i = 0; i <= faceStorage.GetJsonData().size(); ++i)
+        for(size_t i = 0; i < faceStorage.GetJsonData().size(); ++i)
         {
             FaceDetection::CompareFaces(faceEmbeddings, faceStorage.RetrieveFace(i));
         }
     }
-
     std::cout << std::endl;
 }
 

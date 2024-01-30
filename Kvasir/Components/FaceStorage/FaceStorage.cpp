@@ -1,7 +1,7 @@
 #include "FaceStorage.h"
 
 FaceStorage::FaceStorage() {
-    std::ifstream infile("../faces.json");
+    std::ifstream infile("../json/facesV2.json");
     if (infile.is_open())
     {
         try
@@ -49,7 +49,7 @@ std::vector<float> FaceStorage::RetrieveFace(int index) {
 }
 
 void FaceStorage::SaveFaceToJSON(const std::vector<float>& face) {
-    std::ifstream infile("../faces.json");
+    std::ifstream infile("../json/faces.json");
 
     if (infile.is_open())
     {
@@ -60,7 +60,7 @@ void FaceStorage::SaveFaceToJSON(const std::vector<float>& face) {
     jsonData["faces"].push_back(face);
 
     // Write the updated JSON to the file
-    std::ofstream outfile("../faces.json");
+    std::ofstream outfile("../json/faces.json");
     outfile << std::setw(4) << jsonData << std::endl;
 }
 
@@ -81,7 +81,7 @@ void FaceStorage::DeleteFace(int index) {
 }
 
 void FaceStorage::writeDataToFile() {
-    std::ofstream outfile("../faces.json");
+    std::ofstream outfile("../json/faces.json");
     if (outfile.is_open())
     {
         outfile << std::setw(4) << jsonData << std::endl;
