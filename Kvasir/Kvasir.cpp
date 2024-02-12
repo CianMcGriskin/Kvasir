@@ -2,8 +2,7 @@
 
 int main(){
     S3Communication::initAws();
-    S3Communication::readJsonFile("../json/facesV2.json");
-    S3Communication::shutdownAWS();
+    S3Communication::readJsonFile("../json/faces.json");
     // Load the model using model class
     Utils::ClearDirectory("../../Kvasir/Components/Output");
 
@@ -26,6 +25,9 @@ int main(){
     // If face was detected within a frame
     if (faceDetection.GetNumOfFacesDetected() > 0)
     {
+        FaceStorage faceStorage = FaceStorage();
+        faceStorage.GetJsonData();
+
         // Loop through faces found in current frame
         for(size_t i = 0; i < faceDetection.GetNumOfFacesDetected(); ++i)
         {
@@ -33,23 +35,24 @@ int main(){
 
             modelInstance.HandleFaceOutput();
 
-            std::cout << "Do you want to save this face? (y/n): ";
+            std::cout << "\nDo you want to save this face? (y/n): ";
             char choice;
             std::cin >> choice;
             if (choice == 'y' || choice == 'Y')
             {
-                FaceStorage faceStorage = FaceStorage();
-                faceStorage.SaveFaceToJSON(modelInstance.GetFaceEmbeddings());
-                std::cout << "Face saved successfully!" << std::endl;
+                int personIndex;
+                std::cout << "Enter the person index for this face (-1 for a new person): ";
+                std::cin >> personIndex;
+                faceStorage.SaveFaceToJSON(personIndex, modelInstance.GetFaceEmbeddings());
+                std::cout << "Face saved successfully under person index " << personIndex << std::endl;
             }
             else
             {
                 std::cout << "Face not saved." << std::endl;
             }
         }
-    } else {
-        std::cout << "No faces detected.";
     }
+
 
 //    cv::imshow("Detection Results", modelInstance.GetInput());
 //    cv::waitKey(0);
@@ -77,5 +80,6 @@ int main(){
         // close OpenCV windows
 //    cv::destroyAllWindows();
 //    StreamService::StopStream();
+    S3Communication::shutdownAWS();
         return 0;
 }

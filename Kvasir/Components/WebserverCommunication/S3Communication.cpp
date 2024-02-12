@@ -15,23 +15,6 @@ void S3Communication::initAws() {
     s3_client = Aws::MakeShared<Aws::S3::S3Client>("S3Client", clientConfig);
 }
 
-void S3Communication::listBuckets()
-{
-    auto outcome = s3_client->ListBuckets();
-
-    if (outcome.IsSuccess())
-    {
-        std::cout << "List of S3 Buckets:" << std::endl;
-        const Aws::Vector<Aws::S3::Model::Bucket>& bucketList = outcome.GetResult().GetBuckets();
-
-        for (const auto& bucket : bucketList) {
-            std::cout << bucket.GetName() << std::endl;
-        }
-    } else {
-        std::cerr << "Error listing buckets: " << outcome.GetError().GetMessage() << std::endl;
-    }
-}
-
 void S3Communication::readJsonFile(std::string filePath) {
     Aws::S3::Model::GetObjectRequest getObjectRequest;
 
@@ -49,8 +32,14 @@ void S3Communication::readJsonFile(std::string filePath) {
     std::cout << "Download completed: " << filePath << std::endl;
 }
 
-void S3Communication::writeToJsonFile() {
+void S3Communication::uploadJsonFile(const std::string& filePath) {
+    Aws::S3::Model::PutObjectRequest request;
+    request.SetBucket("kvasir-storage");
+    request.SetKey("PeopleInformation.json");
 
+    std::shared_ptr<Aws::FStream> fileStream = Aws::MakeShared<Aws::FStream>("PutObjectAllocationTag", filePath.c_str(), std::ios_base::in | std::ios_base::binary);
+    request.SetBody(fileStream);
+    auto outcome = s3_client->PutObject(request);
 }
 
 void S3Communication::shutdownAWS(){

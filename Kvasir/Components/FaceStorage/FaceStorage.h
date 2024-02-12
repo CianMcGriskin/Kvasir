@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include "../WebserverCommunication/S3Communication.h"
 
 #ifndef KVASIR_FACESTORAGE_H
 #define KVASIR_FACESTORAGE_H
@@ -11,10 +12,10 @@ public:
     FaceStorage();
 
     // Retrieve face data based on index
-    std::vector<float> RetrieveFace(int index);
+    std::vector<float> RetrieveFace(int personIndex, int faceIndex);
 
     // Save face data to the faces array in the json file.
-    void SaveFaceToJSON(const std::vector<float>& face);
+    void SaveFaceToJSON(int personIndex, const std::vector<float>& face);
 
     // Returns json data
     nlohmann::json GetJsonData();

@@ -95,11 +95,9 @@ void Model::HandleFaceOutput() {
 
     // Get the output tensor from the interpreter
     output = interpreter->typed_output_tensor<float>(0);
-
     const float* embeddingData = output;
 
     // Print the embeddings to the console
-    std::vector<float> embedding;
     faceEmbeddings.reserve(embeddingSize);
 
     std::cout << "Face Embeddings: ";
@@ -108,15 +106,20 @@ void Model::HandleFaceOutput() {
         faceEmbeddings.emplace_back(embeddingData[i]);
         std::cout << embeddingData[i] << ", ";
     }
+    auto jsonData = faceStorage.GetJsonData();
 
-    if(!faceStorage.GetJsonData().contains("faces") || !faceStorage.GetJsonData()["faces"].empty())
-    {
-        for(size_t i = 0; i < faceStorage.GetJsonData().size(); ++i)
+    size_t numberOfPeople = jsonData.size();
+    for (size_t personIndex = 0; personIndex < numberOfPeople; ++personIndex) {
+        std::string key = std::to_string(personIndex);
+        if (jsonData.contains(key) && !jsonData[key]["faces"].empty())
         {
-            FaceDetection::CompareFaces(faceEmbeddings, faceStorage.RetrieveFace(i));
+            size_t facesCount = jsonData[key]["faces"].size();
+            for (size_t faceIndex = 0; faceIndex < facesCount; ++faceIndex) {
+                auto faceData = faceStorage.RetrieveFace(personIndex, faceIndex);
+                FaceDetection::CompareFaces(faceEmbeddings, faceData);
+            }
         }
     }
-    std::cout << std::endl;
 }
 
 void Model::HandleOutput(float minimumConfidence) {

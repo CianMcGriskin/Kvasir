@@ -11,9 +11,8 @@ class S3Communication {
 public:
     static void initAws();
     static void readJsonFile(std::string filePath);
-    void writeToJsonFile();
-    static void listBuckets();
     static void shutdownAWS();
+    static void uploadJsonFile(const std::string& filePath);
 private:
     static Aws::SDKOptions options;
     static std::shared_ptr<Aws::S3::S3Client> s3_client;

@@ -1,45 +1,25 @@
 #include "FaceStorage.h"
 
 FaceStorage::FaceStorage() {
-    std::ifstream infile("../json/facesV2.json");
-    if (infile.is_open())
-    {
-        try
-        {
-            // If the file exists but has nothing in it, initialise the json file.
-            if (infile.peek() == std::ifstream::traits_type::eof())
-            {
-                jsonData = {{"faces", nlohmann::json::array()}};
-                writeDataToFile();
-            }
-            else
-            {
-                infile >> jsonData;
-
-                // Check if the JSON data is empty or null or if "faces" key is missing
-                if (jsonData.empty() || !jsonData.contains("faces") || jsonData["faces"].empty())
-                {
-                    // Initialize jsonData with a default structure
-                    jsonData = {{"faces", nlohmann::json::array()}};
-                    writeDataToFile();
-                }
-            }
+    std::ifstream infile("../json/faces.json");
+    if (infile.is_open()) {
+        try {
+            infile >> jsonData;
         }
-        catch (const std::exception& e)
-        {
-            std::cerr << "Error while parsing JSON: " << e.what() << std::endl;
+        catch (const nlohmann::json::parse_error &e) {
+            std::cerr << "JSON parse error: " << e.what() << std::endl;
         }
-    } else
-    {
-        std::cerr << "Unable to open faces.json" << std::endl;
     }
 }
 
-std::vector<float> FaceStorage::RetrieveFace(int index) {
+std::vector<float> FaceStorage::RetrieveFace(int personIndex, int faceIndex) {
+
+    std::string key = std::to_string(personIndex);
+
     // Making sure the index exists before retrieval.
-    if (!jsonData["faces"].empty() && index >= 0 && index < jsonData["faces"].size())
+    if (jsonData.contains(key) && faceIndex >= 0 && faceIndex < jsonData[key]["faces"].size())
     {
-        return jsonData["faces"][index].get<std::vector<float>>();
+        return jsonData[key]["faces"][faceIndex].get<std::vector<float>>();
     }
     else
     {
@@ -48,20 +28,20 @@ std::vector<float> FaceStorage::RetrieveFace(int index) {
     }
 }
 
-void FaceStorage::SaveFaceToJSON(const std::vector<float>& face) {
-    std::ifstream infile("../json/faces.json");
+void FaceStorage::SaveFaceToJSON(int personIndex, const std::vector<float>& face) {
+    std::string key = std::to_string(personIndex);
 
-    if (infile.is_open())
-    {
-        infile >> jsonData;
+    if (!jsonData.contains(key) || jsonData[key].is_null()) {
+        jsonData[key] = {{"faces", nlohmann::json::array()}};
     }
 
-    // Append the face vector to the JSON array
-    jsonData["faces"].push_back(face);
+    jsonData[key]["faces"].push_back(face);
 
     // Write the updated JSON to the file
     std::ofstream outfile("../json/faces.json");
     outfile << std::setw(4) << jsonData << std::endl;
+    outfile.close();
+    S3Communication::uploadJsonFile("../json/faces.json");
 }
 
 nlohmann::json FaceStorage::GetJsonData() {
