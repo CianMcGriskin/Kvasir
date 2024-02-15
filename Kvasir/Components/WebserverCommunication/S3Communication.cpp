@@ -1,5 +1,3 @@
-#include <fstream>
-#include <filesystem>
 #include "S3Communication.h"
 
 Aws::SDKOptions S3Communication::options;
@@ -44,4 +42,14 @@ void S3Communication::uploadJsonFile(const std::string& filePath) {
 
 void S3Communication::shutdownAWS(){
     Aws::ShutdownAPI(options);
+}
+
+void S3Communication::uploadVideoSegment(const std::string& fileName) {
+    Aws::S3::Model::PutObjectRequest request;
+    request.SetBucket("kvasir-storage");
+    request.SetKey(fileName.substr(fileName.find_last_of('/') + 1).c_str());
+
+    auto input_data = Aws::MakeShared<Aws::FStream>("PutObjectInputStream", fileName.c_str(), std::ios_base::in | std::ios_base::binary);
+    request.SetBody(input_data);
+    auto outcome = s3_client->PutObject(request);
 }

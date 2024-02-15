@@ -116,7 +116,10 @@ void Model::HandleFaceOutput() {
             size_t facesCount = jsonData[key]["faces"].size();
             for (size_t faceIndex = 0; faceIndex < facesCount; ++faceIndex) {
                 auto faceData = faceStorage.RetrieveFace(personIndex, faceIndex);
-                FaceDetection::CompareFaces(faceEmbeddings, faceData);
+                float similarity = FaceDetection::CompareFaces(faceEmbeddings, faceData);
+                if (similarity > 0.80) {
+                    std::cout << "Detected: " << jsonData[key]["Name"] << " with a similarity of " << similarity << std::endl;
+                }
             }
         }
     }

@@ -6,6 +6,8 @@
 #include <aws/s3/model/PutObjectRequest.h>
 #include <aws/s3/model/GetObjectRequest.h>
 #include <memory>
+#include <fstream>
+#include <filesystem>
 
 class S3Communication {
 public:
@@ -13,6 +15,7 @@ public:
     static void readJsonFile(std::string filePath);
     static void shutdownAWS();
     static void uploadJsonFile(const std::string& filePath);
+    static void uploadVideoSegment(const std::string& fileName);
 private:
     static Aws::SDKOptions options;
     static std::shared_ptr<Aws::S3::S3Client> s3_client;

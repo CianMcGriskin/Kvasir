@@ -41,7 +41,9 @@ add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/Model.cpp" "Components
         Components/Utils/Utils.cpp
         Components/Utils/Utils.h
         Components/WebserverCommunication/S3Communication.cpp
-        Components/WebserverCommunication/S3Communication.h)
+        Components/WebserverCommunication/S3Communication.h
+        Components/MotionBasedRecorder/MotionBasedRecorder.cpp
+        Components/MotionBasedRecorder/MotionBasedRecorder.h)
 
 # Link TensorFlow lite library
 target_link_libraries(Kvasir tensorflow-lite)
