@@ -15,26 +15,42 @@
 
 class MotionBasedRecorder {
 public:
-    MotionBasedRecorder(std::string outputDir, std::string bucketName, uint16_t segmentLength);
-    void start();
+    // Contructor
+    MotionBasedRecorder(std::string outputDir, uint16_t segmentLength, cv::VideoCapture videoCap);
+
+    // Continuously captures video frames, detects motion, and handles video recording and uploading
+    void continuousCaptureAndUpload(const cv::Mat& frame);
 
 private:
+    // Video capture device
     cv::VideoCapture videoCapture;
+
+    // Directory for storing video segments
     std::string outputDirectory;
-    std::string s3BucketName;
+
+    // Flag to indicate if recording is currently active
     bool isRecording;
+
+    // Time when the current video segment started
+    std::chrono::steady_clock::time_point segmentStartTime;
+
+    // Last time motion was detected
     std::chrono::steady_clock::time_point lastMotionDetectedTime;
-    uint16_t segmentLength;
+
+    // OpenCV video writer for recording segments
     cv::VideoWriter videoWriter;
+
+    // Length of each video segment in minutes
+    int16_t segmentLength;
+
+    // Name of the current video segment file
+    std::string segmentFileName;
+
+    // Previous frame, used for motion detection
+    cv::Mat prevFrame;
 
     // Finalises the current video segment and uploads it to S3
     void stopRecordingAndUpload(const std::string& fileName);
-
-    // Sets up the video capture device - To be changed
-    void setupVideoCapture();
-
-    // Continuously captures video frames, detects motion, and handles video recording and uploading
-    void continuousCaptureAndUpload();
 
     // Starts a new video segment and returns the file name of the segment
     std::string startNewSegment();
