@@ -55,7 +55,7 @@ export class BarredListPage implements OnInit {
 
     let params = {
       Bucket: 'kvasir-storage',
-      Prefix: 'Images/',
+      Prefix: 'PersonImage/',
     };
 
     try {
@@ -64,7 +64,7 @@ export class BarredListPage implements OnInit {
       let data = await this.s3Client.send(command);
 
       const allowedImageExtensions = ['.jpg', '.jpeg', '.png']; //Image Extensions allowed
-
+ 
       const images = data.Contents?.filter(obj => {
         const key = obj?.Key || '';
         return allowedImageExtensions.some(ext => key.toLowerCase().endsWith(ext));

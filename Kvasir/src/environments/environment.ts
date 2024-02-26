@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  AWS_ACCESS_KEY_ID: 'AKIA34MPTAECWM4VRIBH',
-  AWS_SECRET_ACCESS_KEY: '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',
+  AWS_ACCESS_KEY_ID: 'AKIA34MPTAECW2ANRHOI',
+  AWS_SECRET_ACCESS_KEY: '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',
   REGION: 'eu-west-1',
 
   firebaseConfig: {
