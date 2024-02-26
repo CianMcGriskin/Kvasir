@@ -36,8 +36,6 @@ void MotionBasedRecorder::continuousCaptureAndUpload(const cv::Mat& frame) {
 
         if (motionDetected)
         {
-            std::cout << "Motion detected." << std::endl;
-
             if (!isRecording || segmentMaxDurationReached)
             {
                 if (isRecording)

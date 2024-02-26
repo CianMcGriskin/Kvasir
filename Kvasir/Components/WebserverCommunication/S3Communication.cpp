@@ -58,5 +58,8 @@ void S3Communication::uploadVideoSegment(const std::string& fileName) {
     request.SetBody(input_data);
 
     // Execute the PutObject request to upload the file to S3
-    auto outcome = s3_client->PutObject(request);
+
+    // Commenting out to avoid AWS charges :)
+    //auto outcome = s3_client->PutObject(request);
+
 }

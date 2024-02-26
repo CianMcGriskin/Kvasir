@@ -4,15 +4,14 @@
 unsigned char FaceDetection::numOfFacesDetected = 0;
 
 // Constructor to initalise caffe model
-FaceDetection::FaceDetection() {
+FaceDetection::FaceDetection() { // Avg 10ms once off exectuion time
     std::string protoPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/deploy.prototxt";
     std::string caffeModelPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/res10_300x300_ssd_iter_140000_fp16.caffemodel";
     faceDetectionModel = cv::dnn::readNetFromCaffe(protoPath, caffeModelPath);
 }
 
 // Function used to detect faces within an image
-void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool display) {
-    auto startTime = std::chrono::high_resolution_clock::now();
+void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool display) { // 70ms avg execution time constant
     int imageHeight = image.rows;
     int imageWidth = image.cols;
 
@@ -60,9 +59,6 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
 
 
             cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
-//            cv::rectangle(outputImage, cv::Point(x1, y1 - imageWidth / 20), cv::Point(x1 + imageWidth / 16, y1), cv::Scalar(0, 255, 0), -1);
-//            std::string conf_str = std::to_string(static_cast<int>(confidence * 100)) + "%";
-//            cv::putText(outputImage, conf_str, cv::Point(x1, y1 - 25), cv::FONT_HERSHEY_COMPLEX, imageWidth / 700, cv::Scalar(255, 255, 255), imageWidth / 200);
         }
     }
 
@@ -71,7 +67,7 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     if (display)
     {
         cv::imshow("Output", outputImage);
-        cv::waitKey(0);
+        cv::waitKey(1);
     }
 
     std::string outputDirectory = "../../Kvasir/Components/Output";
@@ -79,15 +75,11 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
         std::string filename = outputDirectory + "/cropped_face_" + std::to_string(i + 1) + ".jpg";
         cv::imwrite(filename, croppedFaces[i]);
         cv::imshow("Cropped Face " + std::to_string(i + 1), croppedFaces[i]);
-        cv::waitKey(0);
+        cv::waitKey(1);
     }
-
-    auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "DetectFaces execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
-float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<float> savedFace, short size) {
+float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<float> savedFace, short size) { // 0 ms
     float dotProduct = 0.0;
     float normA = 0.0;
     float normB = 0.0;
@@ -111,7 +103,7 @@ float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<fl
         return 0.0;
     }
 
-    std::cout << "\nSimilarity: " << dotProduct / (std::sqrt(normA) * std::sqrt(normB));
+    //std::cout << "\nSimilarity: " << dotProduct / (std::sqrt(normA) * std::sqrt(normB));
     return dotProduct / (std::sqrt(normA) * std::sqrt(normB));
 }
 

@@ -44,9 +44,10 @@ void Model::BuildInterpreter() {
     interpreter->SetNumThreads(6);
 }
 
-void Model::HandleImageInput(const std::string& imagePath) {
+void Model::HandleImageInput(const std::string& imagePath) { // Avg 80ms execution all the time
     // Used to calculate performance time
     auto startTime = std::chrono::high_resolution_clock::now();
+
     input = cv::imread(imagePath);
     cv::resize(input, input, cv::Size(modelParam, modelParam));
     input.convertTo(input, CV_32FC3);
@@ -60,7 +61,7 @@ void Model::HandleImageInput(const std::string& imagePath) {
 
     auto endTime = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "HandleInput execution time: " << duration.count() << " milliseconds" << std::endl;
+    std::cout << "HandleImageInput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
 void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
@@ -86,9 +87,11 @@ void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
     std::cout << "HandleInput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
-void Model::HandleFaceOutput() {
-    FaceStorage faceStorage;
+void Model::HandleFaceOutput() { // avg 2ms execution
+    auto start_time = std::chrono::high_resolution_clock::now();
+    faceEmbeddings.clear();
 
+    FaceStorage faceStorage;
 
     // Number of dimensions in the embedding vector
     const size_t embeddingSize = 512;
@@ -100,29 +103,39 @@ void Model::HandleFaceOutput() {
     // Print the embeddings to the console
     faceEmbeddings.reserve(embeddingSize);
 
-    std::cout << "Face Embeddings: ";
     for (size_t i = 0; i < embeddingSize; ++i)
     {
         faceEmbeddings.emplace_back(embeddingData[i]);
-        std::cout << embeddingData[i] << ", ";
     }
+
     auto jsonData = faceStorage.GetJsonData();
 
     size_t numberOfPeople = jsonData.size();
-    for (size_t personIndex = 0; personIndex < numberOfPeople; ++personIndex) {
+    for (size_t personIndex = 0; personIndex < numberOfPeople; ++personIndex)
+    {
         std::string key = std::to_string(personIndex);
+
         if (jsonData.contains(key) && !jsonData[key]["faces"].empty())
         {
             size_t facesCount = jsonData[key]["faces"].size();
-            for (size_t faceIndex = 0; faceIndex < facesCount; ++faceIndex) {
+            for (size_t faceIndex = 0; faceIndex < facesCount; ++faceIndex)
+            {
                 auto faceData = faceStorage.RetrieveFace(personIndex, faceIndex);
                 float similarity = FaceDetection::CompareFaces(faceEmbeddings, faceData);
-                if (similarity > 0.80) {
+
+                if (similarity > 0.80)
+                {
                     std::cout << "Detected: " << jsonData[key]["Name"] << " with a similarity of " << similarity << std::endl;
                 }
             }
         }
     }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    // Calculate and print the execution time in milliseconds
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    std::cout << "\nHandleFaceOutput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
 void Model::HandleOutput(float minimumConfidence) {
