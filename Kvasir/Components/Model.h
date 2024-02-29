@@ -10,7 +10,7 @@
 class Model {
 public:
     // Constructor for the model class, assigned model LxW needed
-    Model(int16_t modelSize);
+    explicit Model(int16_t modelSize);
 
     // Function used to load model from File
     void LoadModel(const char* modelPath);
@@ -32,6 +32,8 @@ public:
 
     // Handles outputting needed data to use in graphical drawing and recognition.
     void HandleOutput(float minimumConfidence);
+
+    std::vector<float_t> ProcessImage(const std::string& imagePath);
 
     void HandleFaceOutput();
 

@@ -13,12 +13,12 @@ void S3Communication::initAws() {
     s3_client = Aws::MakeShared<Aws::S3::S3Client>("S3Client", clientConfig);
 }
 
-void S3Communication::readJsonFile(std::string filePath) {
+void S3Communication::downloadFile(const std::string& key, const std::string& filePath) {
     Aws::S3::Model::GetObjectRequest getObjectRequest;
 
     // Link to S3 file
     getObjectRequest.SetBucket("kvasir-storage");
-    getObjectRequest.SetKey("PeopleInformation.json");
+    getObjectRequest.SetKey(key.c_str());
 
     auto getObjectOutcome = s3_client->GetObject(getObjectRequest);
 
@@ -61,5 +61,41 @@ void S3Communication::uploadVideoSegment(const std::string& fileName) {
 
     // Commenting out to avoid AWS charges :)
     //auto outcome = s3_client->PutObject(request);
+}
 
+std::vector<std::string> S3Communication::getFileNames(const std::string& folderName) {
+    Aws::S3::Model::ListObjectsV2Request request;
+
+    request.SetBucket("kvasir-storage");
+    request.SetPrefix(folderName.c_str());
+
+
+    auto outcome = s3_client->ListObjectsV2(request);
+    std::vector<std::string> fileNames;
+
+    int fileCount = outcome.GetResult().GetContents().size();
+
+    if (fileCount > 1)
+    {
+        const auto& contents = outcome.GetResult().GetContents();
+        for (size_t i = 1; i < contents.size(); ++i) {
+            fileNames.push_back(contents[i].GetKey());
+        }
+
+        return fileNames;
+    }
+    else
+    {
+        // The folder is empty
+        return fileNames;
+    }
+}
+
+void S3Communication::deleteFile(const std::string &key) {
+    Aws::S3::Model::DeleteObjectRequest request;
+
+    request.SetBucket("kvasir-storage");
+    request.SetKey(key);
+
+    auto outcome = s3_client->DeleteObject(request);
 }

@@ -79,6 +79,66 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     }
 }
 
+void FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel) {
+    int imageHeight = image.rows;
+    int imageWidth = image.cols;
+
+    // Mean and size for the model params
+    cv::Size size = cv::Size(300, 300);
+    cv::Scalar blobMean = cv::Scalar(104.0, 117.0, 123.0);
+
+    // Clone image to process it
+    cv::Mat outputImage = image.clone();
+
+    // Save face images in a vector
+    std::vector<cv::Mat> croppedFaces;
+
+    // Process image
+    cv::Mat preprocessedImage;
+    cv::dnn::blobFromImage(image, preprocessedImage, 1.0, size, blobMean, false, false);
+
+    // Set image as input
+    faceDetectionModel.setInput(preprocessedImage);
+    cv::Mat results = faceDetectionModel.forward();
+
+
+    cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());
+
+    for (int i = 0; i < detectionMat.rows; ++i) {
+        float confidence = detectionMat.at<float>(i, 2);
+
+        if (confidence > confidenceLevel) {
+            int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * imageWidth);
+            int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * imageHeight);
+            int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * imageWidth);
+            int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * imageHeight);
+
+            cv::Rect faceRegion(x1, y1, x2 - x1, y2 - y1);
+            try {
+                cv::Mat croppedFace = image(faceRegion).clone();
+                croppedFaces.push_back(croppedFace);
+            }
+            catch (cv::Exception &e) {
+                std::cerr << e.msg << std::endl;
+            }
+
+            cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
+        }
+    }
+
+    unsigned long numOfFaces = croppedFaces.size();
+
+    std::string outputDirectory = "../../Kvasir/TempPersonImage";
+    if (numOfFaces > 1) {
+        // Can't be more than one face in an image - delete it
+
+    } else {
+        std::string filename = outputDirectory + "/cropped_face_" + std::to_string(numOfFaces) + ".jpg";
+        cv::imwrite(filename, croppedFaces[0]);
+    }
+
+}
+
 float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<float> savedFace, short size) { // 0 ms
     float dotProduct = 0.0;
     float normA = 0.0;

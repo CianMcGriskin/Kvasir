@@ -46,7 +46,6 @@ void Model::BuildInterpreter() {
 
 void Model::HandleImageInput(const std::string& imagePath) { // Avg 80ms execution all the time
     // Used to calculate performance time
-    auto startTime = std::chrono::high_resolution_clock::now();
 
     input = cv::imread(imagePath);
     cv::resize(input, input, cv::Size(modelParam, modelParam));
@@ -58,10 +57,6 @@ void Model::HandleImageInput(const std::string& imagePath) { // Avg 80ms executi
     std::memcpy(inputImageTensor, input.data, modelParam * modelParam * 3 * sizeof(float));
 
     interpreter->Invoke();
-
-    auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "HandleImageInput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
 void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
@@ -88,7 +83,6 @@ void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
 }
 
 void Model::HandleFaceOutput() { // avg 2ms execution
-    auto start_time = std::chrono::high_resolution_clock::now();
     faceEmbeddings.clear();
 
     FaceStorage faceStorage;
@@ -130,12 +124,33 @@ void Model::HandleFaceOutput() { // avg 2ms execution
             }
         }
     }
+}
 
-    auto end_time = std::chrono::high_resolution_clock::now();
+std::vector<float_t> Model::ProcessImage(const std::string& imagePath)
+{
+    std::vector<float_t> imageFaceEmbeddings;
 
-    // Calculate and print the execution time in milliseconds
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    std::cout << "\nHandleFaceOutput execution time: " << duration.count() << " milliseconds" << std::endl;
+    input = cv::imread(imagePath);
+    cv::resize(input, input, cv::Size(modelParam, modelParam));
+    input.convertTo(input, CV_32FC3);
+    input /= 255.0;
+
+    auto* inputImageTensor = interpreter->typed_input_tensor<float>(0);
+    std::memcpy(inputImageTensor, input.data, modelParam * modelParam * 3 * sizeof(float));
+
+    interpreter->Invoke();
+
+    const float* embeddingData = interpreter->typed_output_tensor<float>(0);
+
+    const size_t embeddingSize = 512;
+    imageFaceEmbeddings.reserve(embeddingSize);
+
+    for (size_t i = 0; i < embeddingSize; ++i)
+    {
+        imageFaceEmbeddings.emplace_back(embeddingData[i]);
+    }
+
+    return imageFaceEmbeddings;
 }
 
 void Model::HandleOutput(float minimumConfidence) {
