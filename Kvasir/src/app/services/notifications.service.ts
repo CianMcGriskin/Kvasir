@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { interval, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AlertController } from '@ionic/angular';
@@ -13,8 +13,10 @@ export class NotificationsService {
   private alertQueue: Function[] = [];
   private alertInProgress = false;
   s3Client: S3Client;
-  searchParams = { Bucket: 'kvasir-storage', Key:'PeopleNotifications.json'};
-  command = new GetObjectCommand(this.searchParams);
+
+  searchParams = { Bucket: 'kvasir-storage', Key: 'PeopleNotifications.json', ResponseCacheControl: "no-cache" };
+  searchCommand = new GetObjectCommand(this.searchParams);
+
   constructor(private alertController: AlertController) {
 
     this.s3Client = new S3Client({
@@ -25,7 +27,7 @@ export class NotificationsService {
       }
     });
 
-    
+
   }
 
   async startPolling(intervalMilliseconds: number) {
@@ -48,18 +50,35 @@ export class NotificationsService {
   }
 
   private async fetchAndProcessNotifications() {
-    await this.s3Client.send(this.command).then((value: any) => {
+    await this.s3Client.send(this.searchCommand).then((value: any) => {
       value.Body?.transformToString().then((dataAsString: any) => {
         // Check if the file holds any notifications
+        console.log(JSON.parse(dataAsString).notifications)
         this.checkForNotifications(JSON.parse(dataAsString).notifications)
-        // Remove the notifications from the file and push it to the database
-        
-        // TODO
       })
     });
   }
 
-  
+  async clearNotificationsFile() {
+    let notificationsObject = { notifications: [] }
+    let notificationsContent = JSON.stringify(notificationsObject)
+    let fileName = 'PeopleNotifications.json';
+
+    try {
+      // Add the file back as empty notification object
+      let addCommand = new PutObjectCommand({
+        Bucket: 'kvasir-storage',
+        Key: fileName,
+        Body: notificationsContent,
+        ContentType: 'application/json'
+      });
+      let response = await this.s3Client.send(addCommand);
+    } catch (error) {
+      console.error('Error uploading notifications file:', error);
+    }
+  }
+
+
 
   private async checkForNotifications(notifications: any) {
     if (notifications.length > 0) {
@@ -70,17 +89,21 @@ export class NotificationsService {
       if (!this.alertInProgress) {
         this.processNextAlert();
       }
+
+      // Remove the notifications from the file and push it to the database
+      this.clearNotificationsFile();
     }
   }
 
   private async processNextAlert() {
+    console.log(this.alertQueue)
     if (this.alertQueue.length > 0 && !this.alertInProgress) {
       this.alertInProgress = true;
       let createAndShowAlert = this.alertQueue.shift();
       if (createAndShowAlert) {
         await createAndShowAlert();
         this.alertInProgress = false;
-        this.processNextAlert(); 
+        this.processNextAlert();
       }
     }
   }
