@@ -23,11 +23,6 @@ const routes: Routes = [
     canActivate: [AuthGuard] 
   },
   {
-    path: 'management',
-    loadChildren: () => import('./management/management.module').then( m => m.ManagementPageModule),
-    canActivate: [AuthGuard] 
-  },
-  {
     path: 'barred-list',
     loadChildren: () => import('./barred-list/barred-list.module').then( m => m.BarredListPageModule),
     canActivate: [AuthGuard] 

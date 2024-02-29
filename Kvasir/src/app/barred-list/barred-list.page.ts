@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
 import { LoadingController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
-
+import { AlertController } from '@ionic/angular';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 @Component({
@@ -11,7 +11,6 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
   styleUrls: ['./barred-list.page.scss'],
 })
 export class BarredListPage implements OnInit {
-
   images: any[];
   s3Client: S3Client;
   selectedImageUrl: String | undefined;
@@ -27,6 +26,7 @@ export class BarredListPage implements OnInit {
       }
     });
   }
+
 
   async ngOnInit() {
     this.loadImages();
