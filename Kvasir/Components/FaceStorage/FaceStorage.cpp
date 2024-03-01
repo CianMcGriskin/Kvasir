@@ -41,7 +41,7 @@ void FaceStorage::SaveFaceToJSON(int personIndex, const std::vector<float>& face
         outfile.close();
     }
 
-    S3Communication::uploadJsonFile("../json/faces.json");
+    S3Communication::uploadFile("PeopleInformation.json", "../json/faces.json");
 }
 
 nlohmann::json FaceStorage::GetJsonData() {

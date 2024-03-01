@@ -36,7 +36,8 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
 
     cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());
 
-    for (int i = 0; i < detectionMat.rows; ++i) {
+    for (int i = 0; i < detectionMat.rows; ++i)
+    {
         float confidence = detectionMat.at<float>(i, 2);
 
         if (confidence > confidenceLevel)
@@ -46,19 +47,13 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
             int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * imageWidth);
             int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * imageHeight);
 
-            cv::Rect faceRegion(x1, y1, x2 - x1, y2 - y1);
-            try
+            if (x1 >= 0 && y1 >= 0 && x2 >= 0 && y2 >= 0 && x2 >= x1 && y2 >= y1 && x2 <= imageWidth && y2 <= imageHeight)
             {
+                cv::Rect faceRegion(x1, y1, x2 - x1, y2 - y1);
                 cv::Mat croppedFace = image(faceRegion).clone();
                 croppedFaces.push_back(croppedFace);
+                cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
             }
-            catch (cv::Exception & e)
-            {
-                std::cerr << e.msg << std::endl;
-            }
-
-
-            cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
         }
     }
 
@@ -119,7 +114,7 @@ void FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel)
                 croppedFaces.push_back(croppedFace);
             }
             catch (cv::Exception &e) {
-                std::cerr << e.msg << std::endl;
+                // Empty as it prints out an error if the face bounding box goes slightly out of frame, error doesn't affect application
             }
 
             cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);

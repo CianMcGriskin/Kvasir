@@ -1,7 +1,9 @@
 #include "Model.h"
 
 // Constructor of the Model class, passing the model size for image in this case [1, 320, 320, 3]
-Model::Model(int16_t modelSize) {
+Model::Model(int16_t modelSize, const std::shared_ptr<NotificationQueue>& notificationQueue)
+      :notificationQueue(notificationQueue)
+{
     modelParam = modelSize;
     input = cv::Mat(modelSize, modelSize, CV_32FC3);
     // classLabels = Model::LoadIdentityLabels("../../Kvasir/labels.txt");
@@ -41,7 +43,9 @@ void Model::BuildInterpreter() {
     // Resize input tensors to model input tensor size
     interpreter->AllocateTensors();
     inputTensor = interpreter->typed_input_tensor<float>(0);
-    interpreter->SetNumThreads(6);
+
+    auto threadCount = std::thread::hardware_concurrency();
+    interpreter->SetNumThreads((threadCount-2));
 }
 
 void Model::HandleImageInput(const std::string& imagePath) { // Avg 80ms execution all the time
@@ -117,9 +121,16 @@ void Model::HandleFaceOutput() { // avg 2ms execution
                 auto faceData = faceStorage.RetrieveFace(personIndex, faceIndex);
                 float similarity = FaceDetection::CompareFaces(faceEmbeddings, faceData);
 
-                if (similarity > 0.80)
+                if (similarity > 0.85)
                 {
                     std::cout << "Detected: " << jsonData[key]["Name"] << " with a similarity of " << similarity << std::endl;
+
+                    NotificationQueue::Notification notification;
+                    notification.name = jsonData[key]["Name"];
+                    notification.reason = jsonData[key]["Reason"];
+                    notification.confidence = similarity;
+
+                    notificationQueue->push(notification);
                 }
             }
         }

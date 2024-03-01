@@ -4,6 +4,7 @@
 void capture();
 void processFrameInBackground();
 void pollForImages();
+void notificationDispatcher(const std::shared_ptr<NotificationQueue>& queue);
 
 std::atomic<bool> stopProcessing(false);
 std::queue<cv::Mat> frameQueue;
@@ -11,11 +12,15 @@ std::mutex queueMutex;
 std::condition_variable queueCondVariable;
 FaceStorage faceStorage;
 
-Model modelInstance(160);
+auto sharedQueue = std::make_shared<NotificationQueue>();
+Model modelInstance(160, sharedQueue);
 FaceDetection faceDetection = FaceDetection();
 
 int main() {
     S3Communication::initAws();
+
+    S3Communication::downloadFile("PeopleInformation.json", "../json/faces.json");
+    S3Communication::downloadFile("PeopleNotifications.json", "../json/notification.json");
 
     Utils::ClearDirectory("../../Kvasir/Components/Output");
 
@@ -24,6 +29,7 @@ int main() {
 
     std::thread processingThread(processFrameInBackground);
     std::thread imagePollingThread(pollForImages);
+    std::thread notificationThread(notificationDispatcher, sharedQueue);
 
     capture();
 
@@ -32,6 +38,7 @@ int main() {
 
     processingThread.join();
     imagePollingThread.join();
+    notificationThread.join();
 
     return 0;
 
@@ -146,16 +153,16 @@ void pollForImages() {
         std::vector<std::string> fileNames;
         fileNames = S3Communication::getFileNames("TempPersonImage/");
 
-        if(fileNames.size() > 0)
+        if(!fileNames.empty())
         {
             // Synchronise JSON file and wait to for download.
             S3Communication::downloadFile("PeopleInformation.json", "../json/faces.json");
             std::this_thread::sleep_for(std::chrono::seconds(10));
 
-            for(size_t i = 0; i < fileNames.size(); ++i)
+            for(const auto & i : fileNames)
             {
-                std::string filePath = "../" + fileNames[i];
-                S3Communication::downloadFile(fileNames[i], filePath);
+                std::string filePath = "../" + i;
+                S3Communication::downloadFile(i, filePath);
 
 
                 cv::Mat image = cv::imread(filePath, cv::IMREAD_COLOR);
@@ -170,6 +177,7 @@ void pollForImages() {
                 // Naming formatting fix
                 std::string fileName;
                 std::string prefix = "../TempPersonImage/";
+
                 if (filePath.substr(0, prefix.length()) == prefix)
                 {
                     fileName = filePath.substr(prefix.length());
@@ -180,11 +188,58 @@ void pollForImages() {
                 faceStorage.SaveFaceToJSON(digit, faceData);
 
                 // Delete S3 picture as it has been processed
-                S3Communication::deleteFile(fileNames[i]);
+                S3Communication::deleteFile(i);
 
                 // Delete temp files locally
                 Utils::ClearDirectory("../../Kvasir/TempPersonImage");
             }
         }
+    }
+}
+
+void notificationDispatcher(const std::shared_ptr<NotificationQueue>& queue) {
+    NotificationQueue::Notification notification;
+    std::string jsonFilePath = "../json/notification.json";
+
+    while (!stopProcessing)
+    {
+        nlohmann::json jsonFile;
+
+        std::ifstream jsonFileIn(jsonFilePath);
+        if (jsonFileIn.is_open()) {
+            jsonFileIn >> jsonFile;
+            jsonFileIn.close();
+        }
+        else
+        {
+            std::cout << "error";
+        }
+
+        queue->wait_and_pop(notification);
+
+        nlohmann::json newNotification =
+        {
+            {"name", notification.name},
+            {"reason", notification.reason},
+            {"confidence", notification.confidence},
+            {"timestamp", notification.timestamp}
+        };
+
+        jsonFile["notifications"].push_back(newNotification);
+
+
+        std::ofstream jsonFileOut(jsonFilePath);
+        if (jsonFileOut.is_open()) {
+            jsonFileOut << jsonFile.dump(4); // Pretty print with 4 spaces indent
+            jsonFileOut.close();
+        } else {
+            std::cerr << "Failed to open " << jsonFilePath << " for writing.\n";
+        }
+
+        // update and upload json notification file
+        S3Communication::uploadFile("PeopleNotifications.json","../json/notification.json");
+
+        // Wait for a bit to avoid flooding
+        std::this_thread::sleep_for(std::chrono::seconds(25));
     }
 }

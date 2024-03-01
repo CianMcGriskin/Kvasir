@@ -4,13 +4,14 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 #include "FaceDetection/FaceDetection.h"
+#include "NotificationQueue/NotificationQueue.h"
 #include <chrono>
 #include "FaceStorage/FaceStorage.h"
 
 class Model {
 public:
     // Constructor for the model class, assigned model LxW needed
-    explicit Model(int16_t modelSize);
+    Model(int16_t modelSize, const std::shared_ptr<NotificationQueue>& notificationQueue);
 
     // Function used to load model from File
     void LoadModel(const char* modelPath);
@@ -50,6 +51,7 @@ private:
     cv::Mat input;
     float* output;
     std::vector<float> faceEmbeddings;
+    std::shared_ptr<NotificationQueue> notificationQueue;
 
     void DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPerDetection);
 };

@@ -30,12 +30,12 @@ void S3Communication::downloadFile(const std::string& key, const std::string& fi
     std::cout << "Download completed: " << filePath << std::endl;
 }
 
-void S3Communication::uploadJsonFile(const std::string& filePath) {
+void S3Communication::uploadFile(const std::string& key, const std::string& localFilePath) {
     Aws::S3::Model::PutObjectRequest request;
     request.SetBucket("kvasir-storage");
-    request.SetKey("PeopleInformation.json");
+    request.SetKey(key.c_str());
 
-    std::shared_ptr<Aws::FStream> fileStream = Aws::MakeShared<Aws::FStream>("PutObjectAllocationTag", filePath.c_str(), std::ios_base::in | std::ios_base::binary);
+    std::shared_ptr<Aws::FStream> fileStream = Aws::MakeShared<Aws::FStream>("PutObjectAllocationTag", localFilePath.c_str(), std::ios_base::in | std::ios_base::binary);
     request.SetBody(fileStream);
     auto outcome = s3_client->PutObject(request);
 }

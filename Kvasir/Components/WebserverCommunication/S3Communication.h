@@ -17,7 +17,7 @@ public:
     static void initAws();
     static void downloadFile(const std::string& key, const std::string& filePath);
     static void deleteFile(const std::string& key);
-    static void uploadJsonFile(const std::string& filePath);
+    static void uploadFile(const std::string& key, const std::string& localFilePath);
     static void uploadVideoSegment(const std::string& fileName);
     static std::vector<std::string> getFileNames(const std::string& folderName);
     static void shutdownAWS();
