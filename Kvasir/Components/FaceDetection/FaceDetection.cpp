@@ -126,7 +126,6 @@ void FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel)
     std::string outputDirectory = "../../Kvasir/TempPersonImage";
     if (numOfFaces > 1) {
         // Can't be more than one face in an image - delete it
-
     } else {
         std::string filename = outputDirectory + "/cropped_face_" + std::to_string(numOfFaces) + ".jpg";
         cv::imwrite(filename, croppedFaces[0]);

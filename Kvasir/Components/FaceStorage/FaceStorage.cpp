@@ -47,15 +47,3 @@ void FaceStorage::SaveFaceToJSON(int personIndex, const std::vector<float>& face
 nlohmann::json FaceStorage::GetJsonData() {
     return jsonData;
 }
-
-void FaceStorage::writeDataToFile() {
-    std::ofstream outfile("../json/faces.json");
-    if (outfile.is_open())
-    {
-        outfile << std::setw(4) << jsonData << std::endl;
-    }
-    else
-    {
-        std::cerr << "Unable to open faces.json for writing.";
-    }
-}

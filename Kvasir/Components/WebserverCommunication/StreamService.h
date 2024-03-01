@@ -11,5 +11,5 @@ public:
     // Function to stop the stream.
     static void StopStream();
 
-    static void SendFrame(cv::Mat frame);
+    static void SendFrame(const cv::Mat& frame);
 };

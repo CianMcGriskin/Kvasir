@@ -57,8 +57,6 @@ void S3Communication::uploadVideoSegment(const std::string& fileName) {
     auto input_data = Aws::MakeShared<Aws::FStream>("PutObjectInputStream", fileName.c_str(), std::ios_base::in | std::ios_base::binary);
     request.SetBody(input_data);
 
-    // Execute the PutObject request to upload the file to S3
-
     // Commenting out to avoid AWS charges :)
     //auto outcome = s3_client->PutObject(request);
 }

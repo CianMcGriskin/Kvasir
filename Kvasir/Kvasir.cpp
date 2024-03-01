@@ -41,42 +41,6 @@ int main() {
     notificationThread.join();
 
     return 0;
-
-//    cv::dnn::Net faceDetectionModel = faceDetection.GetModel();
-
-
-//    // If face was detected within a frame
-//    if (faceDetection.GetNumOfFacesDetected() > 0)
-//    {
-//
-//        faceStorage.GetJsonData();
-//
-//        // Loop through faces found in current frame
-//        for(size_t i = 0; i < faceDetection.GetNumOfFacesDetected(); ++i)
-//        {
-//            modelInstance.HandleImageInput("../../Kvasir/Components/Output/cropped_face_" + std::to_string((i+1)) + ".jpg");
-//
-//            modelInstance.HandleFaceOutput();
-//
-//            std::cout << "\nDo you want to save this face? (y/n): ";
-//            char choice;
-//            std::cin >> choice;
-//            if (choice == 'y' || choice == 'Y')
-//            {
-//                int personIndex;
-//                std::cout << "Enter the person index for this face (-1 for a new person): ";
-//                std::cin >> personIndex;
-//                faceStorage.SaveFaceToJSON(personIndex, modelInstance.GetFaceEmbeddings());
-//                std::cout << "Face saved successfully under person index " << personIndex << std::endl;
-//            }
-//            else
-//            {
-//                std::cout << "Face not saved." << std::endl;
-//            }
-//        }
-//    }
-//    S3Communication::shutdownAWS();
-//        return 0;
 }
 
 void processFrameInBackground() {
@@ -206,7 +170,8 @@ void notificationDispatcher(const std::shared_ptr<NotificationQueue>& queue) {
         nlohmann::json jsonFile;
 
         std::ifstream jsonFileIn(jsonFilePath);
-        if (jsonFileIn.is_open()) {
+        if (jsonFileIn.is_open())
+        {
             jsonFileIn >> jsonFile;
             jsonFileIn.close();
         }

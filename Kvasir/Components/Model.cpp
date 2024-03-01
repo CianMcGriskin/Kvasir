@@ -6,33 +6,11 @@ Model::Model(int16_t modelSize, const std::shared_ptr<NotificationQueue>& notifi
 {
     modelParam = modelSize;
     input = cv::Mat(modelSize, modelSize, CV_32FC3);
-    // classLabels = Model::LoadIdentityLabels("../../Kvasir/labels.txt");
 }
 
 // Function to load a TensorFlow Lite model from a file
 void Model::LoadModel(const char* modelPath) {
     model = tflite::FlatBufferModel::BuildFromFile(modelPath);
-}
-
-// Function used to load text labels, used to display what the model is detecting
-std::vector<std::string> Model::LoadIdentityLabels(const std::string& labelsPath) {
-    std::vector<std::string> labels;
-    std::ifstream file(labelsPath);
-
-    if (file.is_open())
-    {
-        std::string label;
-        while (std::getline(file, label))
-        {
-            labels.emplace_back(label);
-        }
-        file.close();
-    }
-    else
-    {
-        std::cerr << "Failed to open class labels file: " << labelsPath << std::endl;
-    }
-    return labels;
 }
 
 void Model::BuildInterpreter() {
@@ -61,29 +39,6 @@ void Model::HandleImageInput(const std::string& imagePath) { // Avg 80ms executi
     std::memcpy(inputImageTensor, input.data, modelParam * modelParam * 3 * sizeof(float));
 
     interpreter->Invoke();
-}
-
-void Model::HandleInput(int16_t modelSize, const cv::Mat& frame) {
-    // Start measuring the execution time
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-    // Resize the input frame to match the model input size
-    cv::resize(frame, input, cv::Size(modelSize, modelSize));
-    input.convertTo(input, CV_32FC3);
-    input /= 255.0;
-
-    // Copy preprocessed image data to the input tensor
-    std::memcpy(inputTensor, input.data, modelSize * modelSize * 3 * sizeof(float));
-
-    // Invoke the interpreter
-    interpreter->Invoke();
-
-    // Stop measuring the execution time
-    auto end_time = std::chrono::high_resolution_clock::now();
-
-    // Calculate and print the execution time in milliseconds
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    std::cout << "HandleInput execution time: " << duration.count() << " milliseconds" << std::endl;
 }
 
 void Model::HandleFaceOutput() { // avg 2ms execution
@@ -233,8 +188,4 @@ std::unique_ptr<tflite::FlatBufferModel>& Model::GetModel() {
 
 cv::Mat Model::GetInput() {
     return input;
-}
-
-std::vector<float> Model::GetFaceEmbeddings() {
-    return faceEmbeddings;
 }

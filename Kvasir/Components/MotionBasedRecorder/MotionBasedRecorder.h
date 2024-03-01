@@ -16,7 +16,7 @@
 class MotionBasedRecorder {
 public:
     // Contructor
-    MotionBasedRecorder(std::string outputDir, uint16_t segmentLength, cv::VideoCapture videoCap);
+    MotionBasedRecorder(std::string outputDir, uint16_t segmentLength, const cv::VideoCapture& videoCap);
 
     // Continuously captures video frames, detects motion, and handles video recording and uploading
     void continuousCaptureAndUpload(const cv::Mat& frame);

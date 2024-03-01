@@ -2,7 +2,7 @@
 
 #include <utility>
 
-MotionBasedRecorder::MotionBasedRecorder(std::string outputDir, uint16_t segmentLength, cv::VideoCapture videoCap)
+MotionBasedRecorder::MotionBasedRecorder(std::string outputDir, uint16_t segmentLength, const cv::VideoCapture& videoCap)
     : outputDirectory(std::move(outputDir)), isRecording(false), segmentLength(segmentLength), videoCapture(videoCap)
     {}
 

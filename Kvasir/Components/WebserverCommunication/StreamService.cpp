@@ -8,7 +8,7 @@ void StreamService::StartStream() {
     streamer.start(8090);
 }
 // Encodes and sends a video frame to the stream
-void StreamService::SendFrame(cv::Mat frame) {
+void StreamService::SendFrame(const cv::Mat& frame) {
     std::vector<uchar> buff_bgr;
     cv::imencode(".jpg", frame, buff_bgr, params);
 

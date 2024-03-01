@@ -2,7 +2,6 @@
 #include <filesystem>
 
 #include "Components/WebserverCommunication/S3Communication.h"
-#include "Components/CameraControl.h"
 #include "Components/Model.h"
 #include "Components/WebserverCommunication/StreamService.h"
 #include "Components/FaceDetection/FaceDetection.h"

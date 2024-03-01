@@ -20,12 +20,6 @@ public:
     // Returns json data
     nlohmann::json GetJsonData();
 
-    // Deletes face at index
-    void DeleteFace(int index);
-
-    // Outputs current jsonData to file, mainly for initialisation purpose
-    void writeDataToFile();
-
 private:
     // Variable used to store json data
     nlohmann::json jsonData;
