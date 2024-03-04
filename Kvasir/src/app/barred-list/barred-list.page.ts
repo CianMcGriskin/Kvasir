@@ -4,6 +4,7 @@ import { LoadingController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
 import { AlertController } from '@ionic/angular';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-barred-list',
@@ -13,10 +14,22 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 export class BarredListPage implements OnInit {
   images: any[];
   s3Client: S3Client;
-  selectedImageUrl: String | undefined;
+  displaySelectedImageUrl: String | undefined;
+  userName: string = '';
+  userReason: string = ''; 
 
-  constructor(private loadingController: LoadingController) {
+  form: FormGroup | null = null;
+  addingUserSelectedImage: File | null = null;
+
+  constructor(private loadingController: LoadingController, private fb: FormBuilder) {
     this.images = [];
+
+    this.form = this.fb.group({
+      userName: ['', Validators.required],
+      userReason: ['', Validators.required],
+      userFiles: [null, Validators.required]
+    });
+
 
     this.s3Client = new S3Client({
       region: environment.REGION,
@@ -90,7 +103,7 @@ export class BarredListPage implements OnInit {
 
   async showImage(key: string) {
     //Reset the values when swapping between images
-    this.selectedImageUrl = undefined;
+    this.displaySelectedImageUrl = undefined;
 
     let params = {
       Bucket: 'kvasir-storage',
@@ -107,10 +120,10 @@ export class BarredListPage implements OnInit {
         let videoBlob = new Blob([imageData], { type: 'image/jpg' });
 
         //Generate a URL to the video so we can display it inside the HTML file
-        this.selectedImageUrl = URL.createObjectURL(videoBlob);
+        this.displaySelectedImageUrl = URL.createObjectURL(videoBlob);
       }
       else {
-        this.selectedImageUrl = undefined;
+        this.displaySelectedImageUrl = undefined;
         console.error("Invalid video URL");
       }
     } catch (error) {
@@ -136,7 +149,7 @@ export class BarredListPage implements OnInit {
       await this.s3Client.send(deleteCommand);
 
       //Reset selected values after deletion in case image is showing up
-      this.selectedImageUrl = undefined;
+      this.displaySelectedImageUrl = undefined;
       this.loadImages();
     } catch (error) {
       console.error('Error deleting image:', error);
@@ -160,12 +173,31 @@ export class BarredListPage implements OnInit {
 
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
-
     if (file) {
-      const key = `Images/${new Date().toISOString()}-${file.name}`;
+      this.addingUserSelectedImage = file;
+      
+      // Tell the form that the file has been selected
+      if(this.form){
+        this.form.patchValue({ userFiles: file });
+      }else{
+        console.log("Error with form, it does not exist")
+      }
+    }
+    
+  }
+  submitUser(){
+    console.log("submit")
+
+    if (this.addingUserSelectedImage) {
+
+      // TODO - POLL THE PEOPLEINFORMATION.JSON FILE AND GET THE INDEX OF THE NEXT PERSON
+
+      const key = `Images/${new Date().toISOString()}-${this.addingUserSelectedImage.name}`; // ADD INDEX OF PERSON INTO THE KEY
       try{
-        
-      this.uploadImage(file, key)
+      this.uploadImage(this.addingUserSelectedImage, key)
+
+      //TODO - UPLOAD INFORMATION OF THE PEOPLE FROM THE VARIABLES GIVEN IN THE FORM INTO INDEX WITH THE KEY BEING AN ARRAY OF IMAGES WE CAN ADD TO LATER
+
       }catch(error){
           
         console.error('Error uploading image:', error);

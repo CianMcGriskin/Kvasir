@@ -53,7 +53,6 @@ export class NotificationsService {
     await this.s3Client.send(this.searchCommand).then((value: any) => {
       value.Body?.transformToString().then((dataAsString: any) => {
         // Check if the file holds any notifications
-        console.log(JSON.parse(dataAsString).notifications)
         this.checkForNotifications(JSON.parse(dataAsString).notifications)
       })
     });
@@ -96,7 +95,6 @@ export class NotificationsService {
   }
 
   private async processNextAlert() {
-    console.log(this.alertQueue)
     if (this.alertQueue.length > 0 && !this.alertInProgress) {
       this.alertInProgress = true;
       let createAndShowAlert = this.alertQueue.shift();

@@ -6,10 +6,34 @@
 
 <ion-content [fullscreen]="true">
 
-  <div style="padding: 3%">
-    <ion-title>Add Files</ion-title>
-    <input type="file" (change)="onFileSelected($event)" accept=".jpg, .jpeg, .png" >
-  </div>
+  <form #userForm="ngForm" (ngSubmit)="submitUser()" style="padding: 3%">
+    <ion-title>Add User</ion-title>
+    
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input type="text" [(ngModel)]="userName" name="userName" required #userNameField="ngModel"></ion-input>
+    </ion-item>
+    <div *ngIf="userNameField.invalid && userNameField.touched" class="error-message">
+      Name is required.
+    </div>
+
+    <ion-item>
+      <ion-label position="floating">Reason for bar</ion-label>
+      <ion-input type="text" [(ngModel)]="userReason" name="userReason" required #userReasonField="ngModel"></ion-input>
+    </ion-item>
+    <div *ngIf="userReasonField.invalid && userReasonField.touched" class="error-message">
+      Reason for bar is required.
+    </div>
+
+    <ion-item>
+      <ion-label>Add Files</ion-label>
+      <input type="file" (change)="onFileSelected($event)" accept=".jpg, .jpeg, .png" required>
+    </ion-item>
+
+    <ion-button type="submit" [disabled]="!userForm.valid" expand="block">Submit</ion-button>
+  </form>
+    
+
 
   <ion-list *ngIf="images && images.length > 0">
     <ion-item *ngFor="let image of images">
@@ -19,6 +43,6 @@
     </ion-item>
   </ion-list>
 
-  <img [src]="selectedImageUrl" alt="" width="40%">
+  <img [src]="displaySelectedImageUrl" alt="" width="40%">
 
 </ion-content>
