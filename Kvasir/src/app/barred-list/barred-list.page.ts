@@ -16,7 +16,7 @@ export class BarredListPage implements OnInit {
   s3Client: S3Client;
   displaySelectedImageUrl: String | undefined;
   userName: string = '';
-  userReason: string = ''; 
+  userReason: string = '';
 
   form: FormGroup | null = null;
   addingUserSelectedImage: File | null = null;
@@ -45,7 +45,7 @@ export class BarredListPage implements OnInit {
     this.loadImages();
   }
 
-  async loadImages(){
+  async loadImages() {
     const loading = await this.loadingController.create({
       message: 'Loading Images...'
     });
@@ -77,7 +77,7 @@ export class BarredListPage implements OnInit {
       let data = await this.s3Client.send(command);
 
       const allowedImageExtensions = ['.jpg', '.jpeg', '.png']; //Image Extensions allowed
- 
+
       const images = data.Contents?.filter(obj => {
         const key = obj?.Key || '';
         return allowedImageExtensions.some(ext => key.toLowerCase().endsWith(ext));
@@ -156,17 +156,17 @@ export class BarredListPage implements OnInit {
     }
   }
   async uploadImage(file: File, key: string) {
-  
+
     let commandInput: PutObjectCommandInput = {
       Bucket: 'kvasir-storage',
       Key: key,
       Body: file,
       ContentType: file.type,
     };
-    try{
-    let command = new PutObjectCommand(commandInput);
-    this.s3Client.send(command);
-    }catch{
+    try {
+      let command = new PutObjectCommand(commandInput);
+      this.s3Client.send(command);
+    } catch {
       console.error("Error sending file")
     }
   }
@@ -175,37 +175,81 @@ export class BarredListPage implements OnInit {
     const file: File = event.target.files[0];
     if (file) {
       this.addingUserSelectedImage = file;
-      
+
       // Tell the form that the file has been selected
-      if(this.form){
+      if (this.form) {
         this.form.patchValue({ userFiles: file });
-      }else{
+      } else {
         console.log("Error with form, it does not exist")
       }
     }
-    
+
   }
-  submitUser(){
-    console.log("submit")
+  async submitUser() {
+    // Retrieve the json of the barred people
+    let searchParams = { Bucket: 'kvasir-storage', Key: 'PeopleInformation.json', ResponseCacheControl: "no-cache" };
+    let searchCommand = new GetObjectCommand(searchParams);
 
-    if (this.addingUserSelectedImage) {
+    try {
+      // Retrieve the next free index
+      let nextIndex: number = 0;
+      let existingPeopleObject: any = null;
 
-      // TODO - POLL THE PEOPLEINFORMATION.JSON FILE AND GET THE INDEX OF THE NEXT PERSON
+      await this.s3Client.send(searchCommand).then((value: any) => {
+        value.Body?.transformToString().then(async (dataAsString: any) => {
+          existingPeopleObject = JSON.parse(dataAsString);
 
-      const key = `Images/${new Date().toISOString()}-${this.addingUserSelectedImage.name}`; // ADD INDEX OF PERSON INTO THE KEY
-      try{
-      this.uploadImage(this.addingUserSelectedImage, key)
+          // Generate an array of existing indices
+          let existingIndices = Object.keys(existingPeopleObject).map(index => parseInt(index)).sort((a, b) => a - b);
 
-      //TODO - UPLOAD INFORMATION OF THE PEOPLE FROM THE VARIABLES GIVEN IN THE FORM INTO INDEX WITH THE KEY BEING AN ARRAY OF IMAGES WE CAN ADD TO LATER
+          nextIndex = existingIndices.length; // Default to the next index if no gaps in index are found
+          for (let i = 0; i < existingIndices.length; i++) { // Look for gaps between indices
+            if (existingIndices[i] !== i) {
+              nextIndex = i;
+              break;
+            }
+          } if (this.addingUserSelectedImage) {
+            // Upload image of the person to the constant images folder to save
+            let savedKey = `Images/${new Date().toISOString()}-${this.addingUserSelectedImage.name}`;
+            this.uploadImage(this.addingUserSelectedImage, savedKey)
 
-      }catch(error){
-          
-        console.error('Error uploading image:', error);
-      }finally{
-        //refresh image display
-        this.loadImages();
-      }
+            // Upload image of the person to the temporary images folder 
+            let tempKey = `TempPersonImage/${nextIndex}-${new Date().toISOString()}-${this.addingUserSelectedImage.name}`;
+            this.uploadImage(this.addingUserSelectedImage, tempKey)
+
+            // New person turned into object
+            let personInfo = {
+              Key: [savedKey],
+              Name: this.userName,
+              Reason: this.userReason,
+              faces: [] // Empty array for backend to fill in
+            };
+            if (existingPeopleObject) {
+              existingPeopleObject[nextIndex] = personInfo;
+
+              // Change the updated object back to a JSON string
+              let updatedDataAsString = JSON.stringify(existingPeopleObject, null, 2);
+
+              // Add the file back with new user
+              let addCommand = new PutObjectCommand({
+                Bucket: 'kvasir-storage',
+                Key: 'PeopleInformation.json',
+                Body: updatedDataAsString,
+                ContentType: 'application/json'
+              });
+              await this.s3Client.send(addCommand);
+            }
+
+          }
+        })
+      });
+    } catch (error) {
+
+      console.error('Error uploading image:', error);
+    } finally {
+      //refresh image display
+      this.loadImages();
     }
   }
-  
+
 }
