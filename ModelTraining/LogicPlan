@@ -1,0 +1,6 @@
+Video Gets read in  models used to scan for car then license plate
+Data saved to csv and image of car and l-plate saved to folder
+Csv get filled for missing data, csv gets read for each license plate associated with each car
+Api is called for image of the car, Returned license plated gets compared to existing license plate- highest confidence is chosen
+Api is called for license plate, both car and license plate gets formatted taking out usless data
+Json from S3 is already polled, new data is added to the JSON then it gets posted to the S3

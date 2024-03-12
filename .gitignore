@@ -127,6 +127,18 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+car_images/
+deep_sort/
+sort/
+
+Results.csv
+Results_interpolated.csv
+sample.mp4
+sample1.mp4
+test.csv
+tes_interpolated.csv
+
+BEEP/
 
 # Spyder project settings
 .spyderproject

@@ -1,0 +1,308 @@
+{
+    "Car_ID_1": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "ap05je0",
+                    "score": 0.899,
+                    "vehicle": {
+                        "score": 0.815,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "Opel",
+                        "model": "Astra",
+                        "score": 0.91
+                    },
+                    "color": {
+                        "color": "silver",
+                        "score": 0.901
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.924
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "OP05JEC",
+            "StatusCode": 404,
+            "Response": "Error or rate limit exceeded"
+        }
+    },
+    "Car_ID_2": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "na13nru",
+                    "score": 0.899,
+                    "vehicle": {
+                        "score": 0.812,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "Skoda",
+                        "model": "Yeti",
+                        "score": 0.849
+                    },
+                    "color": {
+                        "color": "silver",
+                        "score": 0.791
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.913
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "HA13NRU",
+            "StatusCode": 404,
+            "Response": "Error or rate limit exceeded"
+        }
+    },
+    "Car_ID_5": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "mw51vsu",
+                    "score": 0.896,
+                    "vehicle": {
+                        "score": 0.929,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "Toyota",
+                        "model": "Sienna",
+                        "score": 0.372
+                    },
+                    "color": {
+                        "color": "black",
+                        "score": 0.831
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.93
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "JV51TSU",
+            "StatusCode": 404,
+            "Response": "Error or rate limit exceeded"
+        }
+    },
+    "Car_ID_6": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "gxi50gj",
+                    "score": 0.882,
+                    "vehicle": {
+                        "score": 0.885,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "BMW",
+                        "model": "5 Series",
+                        "score": 0.83
+                    },
+                    "color": {
+                        "color": "white",
+                        "score": 0.875
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.906
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "GX15OGJ",
+            "Response": {
+                "registrationNumber": "GX15OGJ",
+                "taxStatus": "Untaxed",
+                "taxDueDate": "2019-09-09",
+                "motStatus": "Not valid",
+                "make": "BMW",
+                "colour": "WHITE"
+            }
+        }
+    },
+    "Car_ID_7": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "kh05zzk",
+                    "score": 0.896,
+                    "vehicle": {
+                        "score": 0.927,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "Opel",
+                        "model": "Astra",
+                        "score": 0.668
+                    },
+                    "color": {
+                        "color": "blue",
+                        "score": 0.912
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.933
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "KK45ZZF",
+            "StatusCode": 404,
+            "Response": "Error or rate limit exceeded"
+        }
+    },
+    "Car_ID_14": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "fj14zhy",
+                    "score": 0.889,
+                    "vehicle": {
+                        "score": 0.874,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "Opel",
+                        "model": "Corsa",
+                        "score": 0.929
+                    },
+                    "color": {
+                        "color": "white",
+                        "score": 0.812
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.93
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "FJ14ZHY",
+            "Response": {
+                "registrationNumber": "FJ14ZHY",
+                "taxStatus": "Taxed",
+                "taxDueDate": "2024-04-01",
+                "motStatus": "Valid",
+                "make": "VAUXHALL",
+                "colour": "RED"
+            }
+        }
+    },
+    "Car_ID_34": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "lm13vcv",
+                    "score": 0.896,
+                    "vehicle": {
+                        "score": 0.909,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "Audi",
+                        "model": "A3",
+                        "score": 0.863
+                    },
+                    "color": {
+                        "color": "white",
+                        "score": 0.663
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.925
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "LH14VCV",
+            "StatusCode": 404,
+            "Response": "Error or rate limit exceeded"
+        }
+    },
+    "Car_ID_61": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "wr02fkd",
+                    "score": 0.9,
+                    "vehicle": {
+                        "score": 0.869,
+                        "type": "Sedan"
+                    },
+                    "model_make": {
+                        "make": "BMW",
+                        "model": "3 Series",
+                        "score": 0.53
+                    },
+                    "color": {
+                        "color": "black",
+                        "score": 0.884
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.927
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "JN02FKO",
+            "StatusCode": 404,
+            "Response": "Error or rate limit exceeded"
+        }
+    },
+    "Car_ID_302": {
+        "RecognitionData": {
+            "results": [
+                {
+                    "plate": "ey61nbg",
+                    "score": 0.9,
+                    "vehicle": {
+                        "score": 0.918,
+                        "type": "SUV"
+                    },
+                    "model_make": {
+                        "make": "Nissan",
+                        "model": "Rogue Sport",
+                        "score": 0.929
+                    },
+                    "color": {
+                        "color": "black",
+                        "score": 0.921
+                    },
+                    "orientation": {
+                        "orientation": "Front",
+                        "score": 0.933
+                    }
+                }
+            ]
+        },
+        "VehicleData": {
+            "RegistrationNumber": "EY61NBG",
+            "Response": {
+                "registrationNumber": "EY61NBG",
+                "taxStatus": "Taxed",
+                "taxDueDate": "2024-05-01",
+                "motStatus": "Valid",
+                "make": "NISSAN",
+                "colour": "BLUE"
+            }
+        }
+    }
+}
