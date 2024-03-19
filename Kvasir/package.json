@@ -41,6 +41,7 @@
     "face-api.js": "^0.22.2",
     "firebase": "^10.7.2",
     "ionicons": "^7.0.0",
+    "ngx-image-cropper": "^7.2.1",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.7.2",
     "stream": "^0.0.2",

@@ -20,8 +20,23 @@
         <source [src]="selectedVideoUrl" type="video/mp4">
         Your browser does not support the video tag.
       </video>
+      <button (click)="captureFrame()">Capture Frame</button>
+      <!-- Cropper Component -->
+      <image-cropper 
+        *ngIf="imageChangedEvent" 
+        [imageChangedEvent]="imageChangedEvent" 
+        [maintainAspectRatio]="false"
+        [aspectRatio]="4 / 3" 
+        format="png" 
+        (imageCropped)="imageCropped($event)" 
+        (imageLoaded)="imageLoaded()"
+        (cropperReady)="cropperReady()" 
+        (loadImageFailed)="loadImageFailed()"></image-cropper>
 
-      
+      <!-- Display Cropped Image -->
+      <img *ngIf="croppedImage" [src]="croppedImage" />
+
+
 
       <!-- Display Cropped images -->
       <!-- <swiper-container pager #slides >
@@ -42,4 +57,4 @@
   </div>
 
 
-</ion-content> 
+</ion-content>

@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { DatabasePageRoutingModule } from './database-routing.module';
 
 import { DatabasePage } from './database.page';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -14,7 +15,8 @@ import { DatabasePage } from './database.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    DatabasePageRoutingModule
+    DatabasePageRoutingModule,
+    ImageCropperModule
   ],
   declarations: [DatabasePage]
 })

@@ -18,6 +18,7 @@ export class DatabasePage implements OnInit {
   s3Client: S3Client;
   selectedVideoUrl: String | undefined;
   croppedImage: string | null = null;
+  imageChangedEvent: any = '';
   detectedFaces: string[] = [];
 
   @ViewChild('videoPlayer') videoPlayer: ElementRef | undefined;
@@ -188,4 +189,44 @@ export class DatabasePage implements OnInit {
       console.error('Error in detectFaces:', error);
     }
   }
+
+  captureFrame(): void {
+    if(this.videoPlayer){
+      const video: HTMLVideoElement = this.videoPlayer.nativeElement;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if(ctx){
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        this.imageChangedEvent = { target: { files: [this.dataURLtoFile(canvas.toDataURL('image/png'), 'frame.png')] }};
+      
+      }
+    }    
+  }
+
+  dataURLtoFile(dataurl: any, filename: any) {
+    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
+  }
+
+  imageCropped(event: any): void {
+    this.croppedImage = event.base64;
+    console.log(this.croppedImage)
+  }
+
+  imageLoaded() {
+    // show cropper TODO
+  }
+  cropperReady() {
+    // cropper ready TODO
+  }
+  loadImageFailed() {
+    // show message TODO
+  }
+
 }
