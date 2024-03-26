@@ -29,7 +29,7 @@
           <ion-content class="ion-padding">
             <!-- Cropper Component -->
             <image-cropper *ngIf="imageChangedEvent" [imageChangedEvent]="imageChangedEvent"
-              [maintainAspectRatio]="false" [aspectRatio]="4 / 3" format="png"
+              [maintainAspectRatio]="false" format="png"
               (imageCropped)="imageCropped($event)"></image-cropper>
           </ion-content>
           <ion-button (click)="confirmCrop()" [strong]="true">Confirm</ion-button>

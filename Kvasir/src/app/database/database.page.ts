@@ -107,11 +107,38 @@ export class DatabasePage implements OnInit {
    * @param key 
    */
   async playVideo(key: string) {
+      let params = {
+        Bucket: 'kvasir-storage',
+        Key: key,
+      };
+
+      try {
+        let command = new GetObjectCommand(params)
+        let video = await this.s3Client.send(command);
+
+        //Transform the video to a byte array and store it as a BLOB
+        let videoData = await video.Body?.transformToByteArray();
+        if (videoData) {
+          let videoBlob = new Blob([videoData], { type: 'video/mp4' });
+
+          //Generate a URL to the video so we can display it inside the HTML file
+          this.selectedVideoUrl = URL.createObjectURL(videoBlob);
+        }
+        else {
+          this.selectedVideoUrl = undefined;
+          console.error("Invalid video URL");
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        throw error;
+      }
+    
 
     const modal = await this.modalController.create({
       component: VideoPlayerPage,
       componentProps: {
-        'selectedVideoUrl': key
+        'selectedVideoUrl': this.selectedVideoUrl
       }
     });
     return await modal.present();

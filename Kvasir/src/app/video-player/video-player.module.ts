@@ -7,10 +7,12 @@ import { IonicModule } from '@ionic/angular';
 import { VideoPlayerPageRoutingModule } from './video-player-routing.module';
 
 import { VideoPlayerPage } from './video-player.page';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
+    ImageCropperModule,
     CommonModule,
     FormsModule,
     IonicModule,

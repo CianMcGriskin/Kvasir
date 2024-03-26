@@ -4,6 +4,7 @@ import { IonModal, NavParams } from '@ionic/angular';
 import { environment } from '../../environments/environment';
 import * as faceapi from 'face-api.js';
 import { ModalController } from '@ionic/angular';
+import { SwiperContainer } from 'swiper/element';
 
 @Component({
   selector: 'app-video-player',
@@ -12,64 +13,42 @@ import { ModalController } from '@ionic/angular';
 })
 export class VideoPlayerPage implements OnInit {
 
-  s3Client: S3Client = new S3Client({
-    region: environment.REGION,
-    credentials: {
-      accessKeyId: environment.AWS_ACCESS_KEY_ID,
-      secretAccessKey: environment.AWS_SECRET_ACCESS_KEY
-    }
-  });
+  videos: any[];
+  s3Client: S3Client;
   selectedVideoUrl: String | undefined;
   imageChangedEvent: any = '';
   detectedFaces: string[] = [];
+
+  //Form variables
+  userName: string = '';
+  userReason: string = '';
   croppedImage: File | null = null;
-  userName: any;
-  userReason: any;
-  videoPlayer: any;
-  tempCroppedImage: any;
   croppedImageUrl: string | null = null;
+  tempCroppedImage: Blob | null = null;
+
+
+  @ViewChild('videoPlayer') videoPlayer: ElementRef | undefined;
+  @ViewChild('slides') slides: SwiperContainer | undefined;
   @ViewChild('croppingModal') croppingModal: IonModal | undefined;
   @ViewChild('addingPersonModal') addingPersonModal: IonModal | undefined;
 
-  constructor(private modalController: ModalController, private navParams: NavParams) {
 
+  constructor(private modalController: ModalController, private navParams: NavParams) {
+    this.videos = [];
+
+    this.s3Client = new S3Client({
+      region: environment.REGION,
+      credentials: {
+        accessKeyId: environment.AWS_ACCESS_KEY_ID,
+        secretAccessKey: environment.AWS_SECRET_ACCESS_KEY
+      }
+    });
   }
   async ngOnInit() {
-    let key: string | undefined;
     // Get the Modal params
     if (this.navParams.get('selectedVideoUrl')) {
-      key = this.navParams.get('selectedVideoUrl')
-
-      let params = {
-        Bucket: 'kvasir-storage',
-        Key: key,
-      };
-
-      try {
-        let command = new GetObjectCommand(params)
-        let video = await this.s3Client.send(command);
-
-        //Transform the video to a byte array and store it as a BLOB
-        let videoData = await video.Body?.transformToByteArray();
-        if (videoData) {
-          let videoBlob = new Blob([videoData], { type: 'video/mp4' });
-
-          //Generate a URL to the video so we can display it inside the HTML file
-          this.selectedVideoUrl = URL.createObjectURL(videoBlob);
-        }
-        else {
-          this.selectedVideoUrl = undefined;
-          console.error("Invalid video URL");
-        }
-
-      } catch (error) {
-        console.error('Error:', error);
-        throw error;
-      }
+      this.selectedVideoUrl = this.navParams.get('selectedVideoUrl')
     }
-
-
-
   }
 
 
