@@ -132,30 +132,39 @@ void pollForImages() {
                 cv::Mat image = cv::imread(filePath, cv::IMREAD_COLOR);
 
                 // Detect faces within image - can't be more than 1 face in an image as this is the design
-                faceDetection.DetectFaceWithinImage(image);
 
-                // Run model to get
-                std::vector<float_t> faceData;
-                faceData = modelInstance.ProcessImage(filePath);
-
-                // Naming formatting fix
-                std::string fileName;
-                std::string prefix = "../TempPersonImage/";
-
-                if (filePath.substr(0, prefix.length()) == prefix)
+                if(faceDetection.DetectFaceWithinImage(image))
                 {
-                    fileName = filePath.substr(prefix.length());
+                    // Run model on image
+                    std::vector<float_t> faceData;
+                    faceData = modelInstance.ProcessImage(filePath);
+
+                    // Naming formatting fix
+                    std::string fileName;
+                    std::string prefix = "../TempPersonImage/";
+
+                    if (filePath.substr(0, prefix.length()) == prefix)
+                    {
+                        fileName = filePath.substr(prefix.length());
+                    }
+
+                    // Save face data to JSON
+                    int digit = fileName[0] - '0';
+                    faceStorage.SaveFaceToJSON(digit, faceData);
+
+                    // Delete S3 picture as it has been processed
+                    S3Communication::deleteFile(i);
+
+                    // Delete temp files locally
+                    Utils::ClearDirectory("../../Kvasir/TempPersonImage");
                 }
+                else
+                {
+                    S3Communication::deleteFile(i);
 
-                // Save face data to JSON
-                int digit = fileName[0] - '0';
-                faceStorage.SaveFaceToJSON(digit, faceData);
-
-                // Delete S3 picture as it has been processed
-                S3Communication::deleteFile(i);
-
-                // Delete temp files locally
-                Utils::ClearDirectory("../../Kvasir/TempPersonImage");
+                    // Delete temp files locally
+                    Utils::ClearDirectory("../../Kvasir/TempPersonImage");
+                }
             }
         }
     }
@@ -194,10 +203,12 @@ void notificationDispatcher(const std::shared_ptr<NotificationQueue>& queue) {
 
 
         std::ofstream jsonFileOut(jsonFilePath);
-        if (jsonFileOut.is_open()) {
-            jsonFileOut << jsonFile.dump(4); // Pretty print with 4 spaces indent
+        if (jsonFileOut.is_open())
+        {
+            jsonFileOut << jsonFile.dump(4);
             jsonFileOut.close();
-        } else {
+        } else
+        {
             std::cerr << "Failed to open " << jsonFilePath << " for writing.\n";
         }
 

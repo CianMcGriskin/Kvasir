@@ -20,7 +20,6 @@ void Model::BuildInterpreter() {
 
     // Resize input tensors to model input tensor size
     interpreter->AllocateTensors();
-    inputTensor = interpreter->typed_input_tensor<float>(0);
 
     auto threadCount = std::thread::hardware_concurrency();
     interpreter->SetNumThreads((threadCount-2));
@@ -118,69 +117,6 @@ std::vector<float_t> Model::ProcessImage(const std::string& imagePath)
 
     return imageFaceEmbeddings;
 }
-
-void Model::HandleOutput(float minimumConfidence) {
-    // Values taken from output tensor
-    const unsigned char numValuesPerDetection = 85;
-    const size_t numDetections = 6300;
-
-    output = interpreter->typed_output_tensor<float>(0);
-
-    int maxConfidenceIndex = -1;
-    float maxConfidence = minimumConfidence;
-
-    // Find the index with the maximum confidence score above the threshold
-    for (uint16_t i = 0; i < numDetections; ++i)
-    {
-        float class_score = output[i * numValuesPerDetection + 4];
-
-        if (class_score > minimumConfidence && class_score > maxConfidence)
-        {
-            maxConfidence = class_score;
-            maxConfidenceIndex = i;
-        }
-    }
-
-    // If an object above the threshold is found, draw a rectangle around it
-    if (maxConfidenceIndex != -1)
-    {
-        DrawBox(maxConfidenceIndex, maxConfidence, numValuesPerDetection);
-    }
-}
-
-void Model::DrawBox(int maxConfidenceIndex, float maxConfidence, int numValuesPerDetection){
-    size_t x_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection] * input.cols);  // x_center
-    size_t y_center = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 1] * input.rows);  // y_center
-    size_t width = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 2] * input.cols);  // width
-    size_t height = static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 3] * input.rows);  // height
-
-    // Calculate top-left and bottom-right coordinates of the bounding box around the face
-    size_t faceHeight = height * 0.33;  // Adjusting the height of the bounding box to focus on the face
-    size_t faceWidth = width * 0.40;
-
-    // Calculate top-left and bottom-right coordinates of the bounding box around the face
-    size_t faceY = y_center - faceHeight / 3;
-    size_t faceX = x_center - width / 2;
-
-    faceX = faceX + 30;
-    faceY = faceY - 55;
-
-    std::string classLabel = classLabels[static_cast<int>(output[maxConfidenceIndex * numValuesPerDetection + 4])];
-
-    // Draw rectangle around the detected face region
-    cv::rectangle(input, cv::Rect(faceX, faceY, faceWidth, faceHeight), cv::Scalar(0, 255, 0), 2);
-    std::string label = classLabel + ": " + std::to_string(maxConfidence);
-
-    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-    float fontScale = 0.5;
-    unsigned char thickness = 1;
-    cv::Size textSize = cv::getTextSize(label, fontFace, fontScale, thickness, nullptr);
-    int textX = faceX + (faceWidth - textSize.width) / 2;
-    int textY = faceY - 10;
-    cv::putText(input, label, cv::Point(textX, textY), fontFace, fontScale, cv::Scalar(0, 255, 0), thickness);
-    std::cout << "Face X: " << faceX << ", Face Y: " << faceY << ", Face Width: " << faceWidth << ", Face Height: " << faceHeight << std::endl;
-}
-
 
 std::unique_ptr<tflite::FlatBufferModel>& Model::GetModel() {
     return model;

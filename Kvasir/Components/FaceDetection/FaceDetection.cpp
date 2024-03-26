@@ -74,7 +74,7 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     }
 }
 
-void FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel) {
+bool FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel) {
     int imageHeight = image.rows;
     int imageWidth = image.cols;
 
@@ -124,11 +124,14 @@ void FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel)
     unsigned long numOfFaces = croppedFaces.size();
 
     std::string outputDirectory = "../../Kvasir/TempPersonImage";
-    if (numOfFaces > 1) {
+    if (numOfFaces > 1 || numOfFaces == 0)
+    {
+        return false;
         // Can't be more than one face in an image - delete it
     } else {
         std::string filename = outputDirectory + "/cropped_face_" + std::to_string(numOfFaces) + ".jpg";
         cv::imwrite(filename, croppedFaces[0]);
+        return true;
     }
 
 }

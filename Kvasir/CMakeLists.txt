@@ -30,8 +30,6 @@ add_subdirectory(
   
 # Add source to this project's executable.
 add_executable(Kvasir "Kvasir.cpp" "Kvasir.h" "Components/Model.cpp" "Components/Model.h"
-        Components/CameraControl.cpp
-        Components/CameraControl.h
         Components/WebserverCommunication/StreamService.cpp
         Components/WebserverCommunication/StreamService.h
         Components/FaceDetection/FaceDetection.cpp

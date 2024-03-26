@@ -13,7 +13,7 @@ public:
     void DetectFaces(cv::Mat &image, float confidenceLevel, bool display = true);
     static float CompareFaces(std::vector<float> currentFace, std::vector<float> savedFace, short size = 512);
     size_t GetNumOfFacesDetected();
-    void DetectFaceWithinImage(cv::Mat &image, float confidenceLevel = 0.5);
+    bool DetectFaceWithinImage(cv::Mat &image, float confidenceLevel = 0.5);
     cv::dnn::Net GetModel();
 private:
     static unsigned char numOfFacesDetected;

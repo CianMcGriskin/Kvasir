@@ -29,7 +29,7 @@ void MotionBasedRecorder::continuousCaptureAndUpload(const cv::Mat& frame) {
 
         // Motion is detected if contours are found
         bool motionDetected = !contours.empty();
-        bool noMotionTimeout = isRecording && (now - lastMotionDetectedTime > std::chrono::seconds(5));
+        bool noMotionTimeout = isRecording && (now - lastMotionDetectedTime > std::chrono::seconds(10));
 
         // Check if the maximum duration for the current segment has been reached
         bool segmentMaxDurationReached = (now - segmentStartTime) > std::chrono::minutes(segmentLength);
@@ -55,7 +55,7 @@ void MotionBasedRecorder::continuousCaptureAndUpload(const cv::Mat& frame) {
         }
         else if (noMotionTimeout)
         {
-            std::cout << "No motion detected for x seconds, stopping recording." << std::endl;
+            std::cout << "No motion detected for 10 seconds, stopping recording." << std::endl;
             stopRecordingAndUpload(segmentFileName);
             isRecording = false;
             segmentFileName.clear();

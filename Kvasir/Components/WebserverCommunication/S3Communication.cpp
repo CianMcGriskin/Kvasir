@@ -58,7 +58,7 @@ void S3Communication::uploadVideoSegment(const std::string& fileName) {
     request.SetBody(input_data);
 
     // Commenting out to avoid AWS charges :)
-    //auto outcome = s3_client->PutObject(request);
+    auto outcome = s3_client->PutObject(request);
 }
 
 std::vector<std::string> S3Communication::getFileNames(const std::string& folderName) {

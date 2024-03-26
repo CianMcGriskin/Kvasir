@@ -50,10 +50,23 @@ def buildAWSSDK():
     except subprocess.CalledProcessError as e:
         print(f"AWS SDK for C++ successfully built.")
 
+def buildMjpeg():
+    print("Building MJPEG Streaming Platform..")
+    mjpeg_path = os.path.join(sourceFolder, "Dependencies", "cpp-mjpeg-streamer")
+    build_path = os.path.join(mjpeg_path, "build")
+
+    os.makedirs(build_path, exist_ok=True)
+    try:
+        subprocess.run(["cmake", ".."], cwd=build_path, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"MJPEG Streaming Platform successfully built.")
+
 parser = argparse.ArgumentParser(description='Clone and build specific repositories.')
 parser.add_argument('-t', '--tensorflow', action='store_true', help='Build TensorFlow')
 parser.add_argument('-o', '--opencv', action='store_true', help='Build OpenCV')
 parser.add_argument('-aws', '--aws_sdk', action='store_true', help='Build AWS SDK for C++')
+parser.add_argument('-m', '--mjpeg', action='store_true', help='Build Mjpeg Streaming')
+parser.add_argument('-a', '--all', action='store_true', help='Build All')
 args = parser.parse_args()
 
 if args.tensorflow:
@@ -62,7 +75,14 @@ if args.opencv:
     buildOpenCV()
 if args.aws_sdk:
     buildAWSSDK()
+if args.mjpeg:
+    buildMjpeg()
+if args.all:
+    buildTensorFlowLite()
+    buildOpenCV()
+    buildAWSSDK()
+    buildMjpeg()
 
 # Display help message if no arguments provided
-if not (args.tensorflow or args.opencv):
+if not (args.tensorflow or args.opencv or args.aws_sdk or args.mjpeg):
     parser.print_help()
