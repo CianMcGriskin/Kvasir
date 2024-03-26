@@ -1,0 +1,92 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>VideoPlayer</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">VideoPlayer</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <div *ngIf="selectedVideoUrl">
+    <div class="video-container">
+
+      <!-- Display Selected Video-->
+      <video controls #videoPlayer>
+        <source [src]="selectedVideoUrl" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <ion-button id="open-croppingModal" expand="block" (click)="captureFrame()">Capture Frame</ion-button>
+      <ion-modal #croppingModal trigger="open-croppingModal">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Crop Image</ion-title>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <!-- Cropper Component -->
+            <image-cropper *ngIf="imageChangedEvent" [imageChangedEvent]="imageChangedEvent"
+              [maintainAspectRatio]="false" [aspectRatio]="4 / 3" format="png"
+              (imageCropped)="imageCropped($event)"></image-cropper>
+          </ion-content>
+          <ion-button (click)="confirmCrop()" [strong]="true">Confirm</ion-button>
+        </ng-template>
+      </ion-modal>
+
+      <ion-modal #addingPersonModal>
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Add Person</ion-title>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content>
+            <form #userForm="ngForm" (ngSubmit)="submitUser()" style="padding: 3%">
+              <ion-item>
+                <ion-label position="floating">Name</ion-label>
+                <ion-input type="text" [(ngModel)]="userName" name="userName" required
+                  #userNameField="ngModel"></ion-input>
+              </ion-item>
+              <div *ngIf="userNameField.invalid && userNameField.touched" class="error-message">
+                Name is required.
+              </div>
+
+              <ion-item>
+                <ion-label position="floating">Reason for bar</ion-label>
+                <ion-input type="text" [(ngModel)]="userReason" name="userReason" required
+                  #userReasonField="ngModel"></ion-input>
+              </ion-item>
+              <div *ngIf="userReasonField.invalid && userReasonField.touched" class="error-message">
+                Reason for bar is required.
+              </div>
+
+              <!-- Display Cropped Image -->
+              <img *ngIf="croppedImageUrl" [src]="croppedImageUrl" />
+
+              <ion-button type="submit" [disabled]="!userForm.valid" expand="block">Submit</ion-button>
+            </form>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+      <!-- Display Cropped images -->
+      <!-- <swiper-container pager #slides >
+        <swiper-slide *ngFor="let face of detectedFaces">
+          <img [src]="face" alt="Face">
+        </swiper-slide>
+    </swiper-container> -->
+
+      <ng-container *ngFor="let face of detectedFaces">
+        <img [src]="face" alt="Face">
+      </ng-container>
+
+    </div>
+    <!-- <div class="video-container">
+      <ion-button (click)="detectFaces()">Detect Faces</ion-button>
+    </div> -->
+
+  </div>
+</ion-content>

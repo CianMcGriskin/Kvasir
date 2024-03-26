@@ -31,6 +31,10 @@ const routes: Routes = [
     path: 'login',
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
   },
+  {
+    path: 'video-player',
+    loadChildren: () => import('./video-player/video-player.module').then( m => m.VideoPlayerPageModule)
+  },
 
 ];
 

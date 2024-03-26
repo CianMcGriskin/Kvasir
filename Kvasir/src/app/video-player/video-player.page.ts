@@ -1,125 +1,78 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
-import { IonModal, LoadingController } from '@ionic/angular';
+import { S3Client, GetObjectCommand, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { IonModal, NavParams } from '@ionic/angular';
 import { environment } from '../../environments/environment';
-import { DomSanitizer } from '@angular/platform-browser';
 import * as faceapi from 'face-api.js';
-import { SwiperContainer } from 'swiper/element';
 import { ModalController } from '@ionic/angular';
-import { VideoPlayerPage } from '../video-player/video-player.page';
 
 @Component({
-  selector: 'app-database',
-  templateUrl: './database.page.html',
-  styleUrls: ['./database.page.scss'],
+  selector: 'app-video-player',
+  templateUrl: './video-player.page.html',
+  styleUrls: ['./video-player.page.scss'],
 })
-export class DatabasePage implements OnInit {
+export class VideoPlayerPage implements OnInit {
 
-  videos: any[];
-  s3Client: S3Client;
+  s3Client: S3Client = new S3Client({
+    region: environment.REGION,
+    credentials: {
+      accessKeyId: environment.AWS_ACCESS_KEY_ID,
+      secretAccessKey: environment.AWS_SECRET_ACCESS_KEY
+    }
+  });
   selectedVideoUrl: String | undefined;
   imageChangedEvent: any = '';
   detectedFaces: string[] = [];
-
-  //Form variables
-  userName: string = '';
-  userReason: string = '';
   croppedImage: File | null = null;
+  userName: any;
+  userReason: any;
+  videoPlayer: any;
+  tempCroppedImage: any;
   croppedImageUrl: string | null = null;
-  tempCroppedImage: Blob | null = null;
-
-
-  @ViewChild('videoPlayer') videoPlayer: ElementRef | undefined;
-  @ViewChild('slides') slides: SwiperContainer | undefined;
   @ViewChild('croppingModal') croppingModal: IonModal | undefined;
   @ViewChild('addingPersonModal') addingPersonModal: IonModal | undefined;
 
-  constructor(private loadingController: LoadingController, private sanitizer: DomSanitizer, private modalController: ModalController) {
-    this.videos = [];
+  constructor(private modalController: ModalController, private navParams: NavParams) {
 
-    this.s3Client = new S3Client({
-      region: environment.REGION,
-      credentials: {
-        accessKeyId: environment.AWS_ACCESS_KEY_ID,
-        secretAccessKey: environment.AWS_SECRET_ACCESS_KEY
-      }
-    });
   }
-
   async ngOnInit() {
-    //Load face-api models from assets
-    await faceapi.nets.tinyFaceDetector.loadFromUri('assets/models');
-    await faceapi.nets.faceLandmark68Net.loadFromUri('assets/models');
-    await faceapi.nets.faceRecognitionNet.loadFromUri('assets/models');
-    await faceapi.nets.ssdMobilenetv1.loadFromUri('assets/models');
+    let key: string | undefined;
+    // Get the Modal params
+    if (this.navParams.get('selectedVideoUrl')) {
+      key = this.navParams.get('selectedVideoUrl')
 
-    const loading = await this.loadingController.create({
-      message: 'Loading Videos...'
-    });
-    await loading.present();
+      let params = {
+        Bucket: 'kvasir-storage',
+        Key: key,
+      };
 
-    try {
-      this.videos = await this.listVideosFromS3Folder();
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-    } finally {
-      loading.dismiss();
-    }
-  }
+      try {
+        let command = new GetObjectCommand(params)
+        let video = await this.s3Client.send(command);
 
-  /**
-   * Retrieves a list of videos from the S3 bucket inside the 'Videos' folder
-   * @returns array of videos from S3 bucket
-   */
-  async listVideosFromS3Folder() {
+        //Transform the video to a byte array and store it as a BLOB
+        let videoData = await video.Body?.transformToByteArray();
+        if (videoData) {
+          let videoBlob = new Blob([videoData], { type: 'video/mp4' });
 
-    let params = {
-      Bucket: 'kvasir-storage',
-      Prefix: 'Videos/',
-    };
+          //Generate a URL to the video so we can display it inside the HTML file
+          this.selectedVideoUrl = URL.createObjectURL(videoBlob);
+        }
+        else {
+          this.selectedVideoUrl = undefined;
+          console.error("Invalid video URL");
+        }
 
-    try {
-      //Retrieve videos with .mp4 ending with the paramaters set in params
-      let command = new ListObjectsV2Command(params);
-      let data = await this.s3Client.send(command);
-      const videos = data.Contents?.filter(obj => obj?.Key?.endsWith('.mp4')) || [];
-
-      return videos;
-    }
-    catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Returns file name without the prefix. e.g. 'Videos/video.mp4' will return 'video.mp4'
-   * @param fullFileName
-   */
-  extractFileName(fullFileName: string): string {
-    let parts = fullFileName.split('/');
-    let fileNameWithoutPrefix = parts[parts.length - 1];
-    return fileNameWithoutPrefix;
-  }
-
-  /**
-   * Returns a video from the S3 bucket based on the key passed through
-   * @param key 
-   */
-  async playVideo(key: string) {
-
-    const modal = await this.modalController.create({
-      component: VideoPlayerPage,
-      componentProps: {
-        'selectedVideoUrl': key
+      } catch (error) {
+        console.error('Error:', error);
+        throw error;
       }
-    });
-    return await modal.present();
+    }
+
+
+
   }
 
-  /**
-   * Crop the current video frame then detect faces within the frame. Display the images of the faces detected
-   */
+
   async detectFaces() {
     //Reset the values when detecting faces again on same video
     this.croppedImage = null;
@@ -210,7 +163,7 @@ export class DatabasePage implements OnInit {
       blob = this.tempCroppedImage;
 
       // Create a File object from the Blob
-      this.croppedImage =  new File([blob], "croppedImage.png", { type: 'image/png' });
+      this.croppedImage = new File([blob], "croppedImage.png", { type: 'image/png' });
       this.croppedImageUrl = URL.createObjectURL(this.croppedImage);
 
 
@@ -288,18 +241,18 @@ export class DatabasePage implements OnInit {
 
       console.error('Error uploading image:', error);
     } finally {
-      if(this.croppingModal?.didPresent){
-      this.croppingModal.dismiss();
+      if (this.croppingModal?.didPresent) {
+        this.croppingModal.dismiss();
       }
-      if(this.addingPersonModal?.didPresent){
-      this.addingPersonModal.dismiss();
+      if (this.addingPersonModal?.didPresent) {
+        this.addingPersonModal.dismiss();
       }
     }
   }
 
   async uploadImage(file: File, key: string) {
 
-    let commandInput: PutObjectCommandInput = { 
+    let commandInput: PutObjectCommandInput = {
       Bucket: 'kvasir-storage',
       Key: key,
       Body: file,

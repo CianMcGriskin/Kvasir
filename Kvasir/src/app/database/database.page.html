@@ -12,49 +12,7 @@
     </ion-item>
   </ion-list>
 
-  <div *ngIf="selectedVideoUrl">
-    <div class="video-container">
-
-      <!-- Display Selected Video-->
-      <video controls #videoPlayer width="40%">
-        <source [src]="selectedVideoUrl" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-      <button (click)="captureFrame()">Capture Frame</button>
-      <!-- Cropper Component -->
-      <image-cropper 
-        *ngIf="imageChangedEvent" 
-        [imageChangedEvent]="imageChangedEvent" 
-        [maintainAspectRatio]="false"
-        [aspectRatio]="4 / 3" 
-        format="png" 
-        (imageCropped)="imageCropped($event)" 
-        (imageLoaded)="imageLoaded()"
-        (cropperReady)="cropperReady()" 
-        (loadImageFailed)="loadImageFailed()"></image-cropper>
-
-      <!-- Display Cropped Image -->
-      <img *ngIf="croppedImage" [src]="croppedImage" />
-
-
-
-      <!-- Display Cropped images -->
-      <!-- <swiper-container pager #slides >
-          <swiper-slide *ngFor="let face of detectedFaces">
-            <img [src]="face" alt="Face">
-          </swiper-slide>
-      </swiper-container> -->
-
-      <ng-container *ngFor="let face of detectedFaces">
-        <img [src]="face" alt="Face">
-      </ng-container>
-
-    </div>
-    <!-- <div class="video-container">
-      <ion-button (click)="detectFaces()">Detect Faces</ion-button>
-    </div> -->
-
-  </div>
+  
 
 
 </ion-content>
