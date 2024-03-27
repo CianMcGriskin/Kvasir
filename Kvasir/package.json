@@ -37,7 +37,7 @@
     "angular": "^1.8.3",
     "buffer": "^6.0.3",
     "canvas": "^2.11.2",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "face-api.js": "^0.22.2",
     "firebase": "^10.7.2",
     "image-cropper": "^1.0.1",

@@ -14,8 +14,11 @@ export class NotificationsService {
   private alertInProgress = false;
   s3Client: S3Client;
 
-  searchParams = { Bucket: 'kvasir-storage', Key: 'PeopleNotifications.json', ResponseCacheControl: "no-cache" };
-  searchCommand = new GetObjectCommand(this.searchParams);
+  faceSearchParams = { Bucket: 'kvasir-storage', Key: 'PeopleNotifications.json', ResponseCacheControl: "no-cache" };
+  faceSearchCommand = new GetObjectCommand(this.faceSearchParams);
+
+  carSearchParams = { Bucket: 'kvasir-storage', Key: 'Vehicle-Data/yourfile.json', ResponseCacheControl: "no-cache" };
+  carSearchCommand = new GetObjectCommand(this.carSearchParams);
 
   constructor(private alertController: AlertController) {
 
@@ -50,15 +53,55 @@ export class NotificationsService {
   }
 
   private async fetchAndProcessNotifications() {
-    await this.s3Client.send(this.searchCommand).then((value: any) => {
+    //GET NOTIFICATIONS FOR FACES
+    await this.s3Client.send(this.faceSearchCommand).then((value: any) => {
       value.Body?.transformToString().then((dataAsString: any) => {
         // Check if the file holds any notifications
-        this.checkForNotifications(JSON.parse(dataAsString).notifications)
+        this.checkForFaceNotifications(JSON.parse(dataAsString).notifications)
+      })
+    });
+
+    //GET NOTIFICATIONS FOR CARS
+    await this.s3Client.send(this.carSearchCommand).then((value: any) => {
+      value.Body?.transformToString().then((dataAsString: any) => {
+        // Check if the file holds any notifications
+        this.checkForCarNotifications(JSON.parse(dataAsString))
       })
     });
   }
 
-  async clearNotificationsFile() {
+
+  private async checkForFaceNotifications(notifications: any) {
+    if (notifications.length > 0) {
+      notifications.forEach((notification: any) => {
+        this.alertQueue.push(() => this.presentFaceAlert(notification));
+      });
+
+      if (!this.alertInProgress) {
+        this.processNextAlert();
+      }
+
+      // Remove the notifications from the file and push it to the database
+      this.clearFaceNotificationsFile();
+    }
+  }
+
+  private async checkForCarNotifications(notifications: any) {
+    if (notifications.length > 0) {
+      notifications.forEach((notification: any) => {
+        this.alertQueue.push(() => this.presentCarAlert(notification));
+      });
+
+      if (!this.alertInProgress) {
+        this.processNextAlert();
+      }
+
+      // Remove the notifications from the file and push it to the database
+      this.clearCarNotificationsFile();
+    }
+  }
+
+  async clearFaceNotificationsFile() {
     let notificationsObject = { notifications: [] }
     let notificationsContent = JSON.stringify(notificationsObject)
     let fileName = 'PeopleNotifications.json';
@@ -77,22 +120,24 @@ export class NotificationsService {
     }
   }
 
+  async clearCarNotificationsFile() {
+    let notificationsContent = JSON.stringify([])
+    let fileName = 'Vehicle-Data/yourfile.json';
 
-
-  private async checkForNotifications(notifications: any) {
-    if (notifications.length > 0) {
-      notifications.forEach((notification: any) => {
-        this.alertQueue.push(() => this.presentAlert(notification));
+    try {
+      // Add the file back as empty notification object
+      let addCommand = new PutObjectCommand({
+        Bucket: 'kvasir-storage',
+        Key: fileName,
+        Body: notificationsContent,
+        ContentType: 'application/json'
       });
-
-      if (!this.alertInProgress) {
-        this.processNextAlert();
-      }
-
-      // Remove the notifications from the file and push it to the database
-      this.clearNotificationsFile();
+      let response = await this.s3Client.send(addCommand);
+    } catch (error) {
+      console.error('Error uploading notifications file:', error);
     }
   }
+
 
   private async processNextAlert() {
     if (this.alertQueue.length > 0 && !this.alertInProgress) {
@@ -106,14 +151,26 @@ export class NotificationsService {
     }
   }
 
-  private async presentAlert(notification: any) {
+  private async presentFaceAlert(notification: any) {
     let alert = await this.alertController.create({
       header: `BARRED PERSON DETECTED`,
       subHeader: 'subheader',
       message: 'message',
       buttons: ['OK'],
     });
+    await alert.present();
+    return new Promise<void>(resolve => alert.onDidDismiss().then(() => resolve()));
+  }
 
+  private async presentCarAlert(notification: any) {
+
+    console.log(notification)
+    let alert = await this.alertController.create({
+      header: `CAR DETECTED`,
+      subHeader: `${notification.Response.registrationNumber}`,
+      message: `A ${notification.Response.yearOfManufacture} ${notification.Response.colour} ${notification.Response.make}. Tax is due on ${notification.Response.taxDueDate} and NCT is due on ${notification.Response.motExpiryDate}`,
+      buttons: ['OK'],
+    });
     await alert.present();
     return new Promise<void>(resolve => alert.onDidDismiss().then(() => resolve()));
   }
