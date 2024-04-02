@@ -24,7 +24,7 @@ def buildOpenCV():
 def buildTensorFlowLite():
     print("Building TensorFlow Lite...")
     
-    tensorflow_path = os.path.join(sourceFolder, "Dependencies", "TensorFlow")
+    tensorflow_path = os.path.join(sourceFolder, "Dependencies", "Tensorflow")
     tflite_build_path = os.path.join(tensorflow_path, "tflite_build")
 
     os.makedirs(tflite_build_path, exist_ok=True)

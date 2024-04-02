@@ -44,7 +44,7 @@ void S3Communication::shutdownAWS(){
     Aws::ShutdownAPI(options);
 }
 
-void S3Communication::uploadVideoSegment(const std::string& fileName) {
+bool S3Communication::uploadVideoSegment(const std::string& fileName) {
     Aws::S3::Model::PutObjectRequest request;
     request.SetBucket("kvasir-storage");
 
@@ -55,10 +55,12 @@ void S3Communication::uploadVideoSegment(const std::string& fileName) {
 
     // Open the file stream for reading the video file in binary mode
     auto input_data = Aws::MakeShared<Aws::FStream>("PutObjectInputStream", fileName.c_str(), std::ios_base::in | std::ios_base::binary);
+
     request.SetBody(input_data);
 
     // Commenting out to avoid AWS charges :)
     auto outcome = s3_client->PutObject(request);
+    return true;
 }
 
 std::vector<std::string> S3Communication::getFileNames(const std::string& folderName) {

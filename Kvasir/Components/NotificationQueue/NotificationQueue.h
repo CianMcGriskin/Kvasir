@@ -11,7 +11,7 @@
 
 class NotificationQueue {
 public:
-
+    // Struct containing information for a notification
     struct Notification
     {
         std::string name;
@@ -36,8 +36,10 @@ public:
         }
     };
 
+    // Function used to push a notification to the queue
     void push(const Notification& notification);
 
+    // Function to wait for a notification and process it, poping it from the queue
     void wait_and_pop(Notification &notification);
 
 private:

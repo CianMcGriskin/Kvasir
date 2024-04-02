@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <utility>
 #include <thread>
 #include <aws/core/Aws.h>
 #include <aws/s3/S3Client.h>
@@ -15,7 +16,7 @@
 
 class MotionBasedRecorder {
 public:
-    // Contructor
+    // Constructor
     MotionBasedRecorder(std::string outputDir, uint16_t segmentLength, const cv::VideoCapture& videoCap);
 
     // Continuously captures video frames, detects motion, and handles video recording and uploading

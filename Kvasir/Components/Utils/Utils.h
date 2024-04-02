@@ -6,8 +6,8 @@
 
 class Utils {
 public:
+    // Function used to delete the contents of a directory
     static void ClearDirectory(const std::string& directoryPath);
-
 };
 
 

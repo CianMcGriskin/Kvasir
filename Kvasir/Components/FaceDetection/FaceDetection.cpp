@@ -7,11 +7,13 @@ unsigned char FaceDetection::numOfFacesDetected = 0;
 FaceDetection::FaceDetection() { // Avg 10ms once off exectuion time
     std::string protoPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/deploy.prototxt";
     std::string caffeModelPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/res10_300x300_ssd_iter_140000_fp16.caffemodel";
+
+    // Using the opencv caffe model execution
     faceDetectionModel = cv::dnn::readNetFromCaffe(protoPath, caffeModelPath);
 }
 
 // Function used to detect faces within an image
-void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool display) { // 70ms avg execution time constant
+void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool display) { // 70ms avg execution time
     int imageHeight = image.rows;
     int imageWidth = image.cols;
 
@@ -33,40 +35,60 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
     faceDetectionModel.setInput(preprocessedImage);
     cv::Mat results = faceDetectionModel.forward();
 
-
+    // Initialise a cv::Mat object to hold the detection results
     cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());
 
+    // For every face detection
     for (int i = 0; i < detectionMat.rows; ++i)
     {
+        // Get confidence of faces detected within image
         float confidence = detectionMat.at<float>(i, 2);
 
+        // Checking for confidence level set at 0.5
         if (confidence > confidenceLevel)
         {
+            // Calculate the bounding box for the detected face.
             int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * imageWidth);
             int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * imageHeight);
             int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * imageWidth);
             int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * imageHeight);
 
-            if (x1 >= 0 && y1 >= 0 && x2 >= 0 && y2 >= 0 && x2 >= x1 && y2 >= y1 && x2 <= imageWidth && y2 <= imageHeight)
+            // Rectangular region around the detected face
+            cv::Rect faceRegion(x1, y1, x2 - x1, y2 - y1);
+            try
             {
-                cv::Rect faceRegion(x1, y1, x2 - x1, y2 - y1);
+                // Crop the detected face from the image
                 cv::Mat croppedFace = image(faceRegion).clone();
+
+                // Store the cropped face
                 croppedFaces.push_back(croppedFace);
-                cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
             }
+            catch (cv::Exception &e)
+            {
+                // Empty as it prints out an error if the face bounding box goes slightly out of frame, error doesn't affect application
+            }
+
+            // Draw a rectangle around the detected face on the output image
+            cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
         }
     }
 
+    // Set number of faces detected within the image
     numOfFacesDetected = croppedFaces.size();
 
+    // If display is set to true then display the faces being captured
     if (display)
     {
         cv::imshow("Output", outputImage);
         cv::waitKey(1);
     }
 
+
     std::string outputDirectory = "../../Kvasir/Components/Output";
-    for (size_t i = 0; i < croppedFaces.size(); ++i) {
+
+    // For all faces detected within the image, save the face to a cropped image
+    for (size_t i = 0; i < croppedFaces.size(); ++i)
+    {
         std::string filename = outputDirectory + "/cropped_face_" + std::to_string(i + 1) + ".jpg";
         cv::imwrite(filename, croppedFaces[i]);
         cv::imshow("Cropped Face " + std::to_string(i + 1), croppedFaces[i]);
@@ -96,27 +118,40 @@ bool FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel)
     faceDetectionModel.setInput(preprocessedImage);
     cv::Mat results = faceDetectionModel.forward();
 
-
+    // Initialise a cv::Mat object to hold the detection results
     cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());
 
-    for (int i = 0; i < detectionMat.rows; ++i) {
+    // For every face detection
+    for (int i = 0; i < detectionMat.rows; ++i)
+    {
+        // Get confidence of faces detected within image
         float confidence = detectionMat.at<float>(i, 2);
 
-        if (confidence > confidenceLevel) {
+        // Checking for confidence level set at 0.5
+        if (confidence > confidenceLevel)
+        {
+            // Calculate the bounding box for the detected face.
             int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * imageWidth);
             int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * imageHeight);
             int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * imageWidth);
             int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * imageHeight);
 
+            // Rectangular region around the detected face
             cv::Rect faceRegion(x1, y1, x2 - x1, y2 - y1);
-            try {
+            try
+            {
+                // Crop the detected face from the image
                 cv::Mat croppedFace = image(faceRegion).clone();
+
+                // Store the cropped face
                 croppedFaces.push_back(croppedFace);
             }
-            catch (cv::Exception &e) {
+            catch (cv::Exception &e)
+            {
                 // Empty as it prints out an error if the face bounding box goes slightly out of frame, error doesn't affect application
             }
 
+            // Draw a rectangle around the detected face on the output image
             cv::rectangle(outputImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), imageWidth / 200);
         }
     }
@@ -128,39 +163,52 @@ bool FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel)
     {
         return false;
         // Can't be more than one face in an image - delete it
-    } else {
+    }
+    else
+    {
+        // If one face is detected, save it to the specified directory and return true.
         std::string filename = outputDirectory + "/cropped_face_" + std::to_string(numOfFaces) + ".jpg";
         cv::imwrite(filename, croppedFaces[0]);
         return true;
     }
-
 }
 
 float FaceDetection::CompareFaces(std::vector<float> currentFace, std::vector<float> savedFace, short size) { // 0 ms
+    // Initialising dot product and norm
     float dotProduct = 0.0;
     float normA = 0.0;
     float normB = 0.0;
 
-    if (currentFace.size() < size || savedFace.size() < size) {
+    // Check if the vectors have 512 elements for comparison
+    if (currentFace.size() < size || savedFace.size() < size)
+    {
+        // If not error is printed
         std::cerr << "\nFace vectors do not not meet sufficient elements for comparison.\n";
         std::cerr << "Current Face Captured Size: " << currentFace.size() << "\n";
         std::cerr << "Saved Face Captured Size: " << savedFace.size() << "\n";
         return 0.0;
     }
 
+    // Iterate over the elements of the vectors
     for (size_t i = 0; i < size; ++i)
     {
+        // Calculate dot product of the two vectors
         dotProduct += savedFace[i] * currentFace[i];
+
+        // Calculate the square of the norm of the first vector
         normA += savedFace[i] * savedFace[i];
+
+        // Calculate the square of the norm of the second vector
         normB += currentFace[i] * currentFace[i];
     }
 
+    // Check if either norm is zero to prevent division by zero
     if (normA == 0 || normB == 0)
     {
         return 0.0;
     }
 
-    //std::cout << "\nSimilarity: " << dotProduct / (std::sqrt(normA) * std::sqrt(normB));
+    // Calculate and return the cosine similarity score
     return dotProduct / (std::sqrt(normA) * std::sqrt(normB));
 }
 

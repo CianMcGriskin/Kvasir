@@ -9,6 +9,7 @@
 
 class FaceStorage {
 public:
+    // Constructor
     FaceStorage();
 
     // Retrieve face data based on index
