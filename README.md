@@ -10,9 +10,10 @@ Live video streaming, cloud video saving, facial detection, recognition and noti
 
 Link can be found here: [Kvasir Backend](https://github.com/CianMcGriskin/Kvasir/tree/ModelInference)
 
-## TO PUT
-To put here
+## Kvasir Mobile - Adrian Holk-Lebinski
+Ionic web application that acts as a UI for Kvasir Backend and Kvasir ANPR. 
 
+Link can be found here: [Kvasir Android](https://github.com/CianMcGriskin/Kvasir/tree/android) 
 
 ## TO PUT
 
