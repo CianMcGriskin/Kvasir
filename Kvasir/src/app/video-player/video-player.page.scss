@@ -6,10 +6,10 @@
   video {
     max-width: 100%;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); // Soft shadow around video
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
   }
   ion-button {
-    margin-top: 20px; // Spacing between video and button
+    margin-top: 20px; 
   }
 }
 /* Cropped images display styling */
@@ -17,20 +17,20 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px; // Space between images
+  gap: 10px; 
   img {
-    width: 100px; // Fixed width for cropped face images
+    width: 100px; 
     height: auto;
-    border-radius: 5px; // Rounded corners for images
+    border-radius: 5px; 
   }
 }
 
 /* Modal content styling */
 ion-modal {
   .ion-padding {
-    padding: 20px; // Padding inside modal for content
+    padding: 20px; 
   }
   ion-button {
-    margin-top: 20px; // Spacing inside modal above button
+    margin-top: 20px; 
   }
 }

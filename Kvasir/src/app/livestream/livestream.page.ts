@@ -43,7 +43,9 @@ export class LivestreamPage implements OnInit {
   }
 
 
-
+  /**
+   * Checks if the live stream is online or offline
+   */
   async checkStreamStatus() {
 
     return new Promise<void>((resolve, reject) => {

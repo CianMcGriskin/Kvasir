@@ -5,16 +5,15 @@ $background-color: #121212;
 $button-hover-color: #0056b3;
 $button-radius: 5px;
 
-ion-content {
+ion-toolbar {
   text-align: center;
-  padding-top: 50px;
-  background-color: $background-color; 
-  color: $text-color; 
+  background-color: $primary-color;
+  color: $text-color;
 }
 
-h5 {
-  font-size: 1rem;
-  margin-bottom: 30px; 
+ion-title {
+  font-size: 1.5rem;
+  font-weight: bold; 
 }
 
 ion-button {
@@ -29,3 +28,16 @@ ion-button {
     background: $button-hover-color;
   }
 }
+
+.spacer-button {
+    flex: 1;
+    cursor: default;
+    pointer-events: none;
+    width: auto;
+    padding: 0 16px;
+  }
+  
+  .logout-button {
+    width: auto;
+    padding: 0 16px;
+  }

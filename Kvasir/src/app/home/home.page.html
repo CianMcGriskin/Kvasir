@@ -1,12 +1,6 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Home Page
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <!-- Logout Button -->
-  <ion-button (click)="logout()">Logout</ion-button>
+  <h3>You are logged in!</h3>
+  <ion-button (click)="goToLivestreamPage()">Livestream Page</ion-button>
+  <ion-button (click)="goToVideosPage()">Saved Videos</ion-button>
+  <ion-button (click)="goToBarredListPage()">Barred List</ion-button>
 </ion-content>

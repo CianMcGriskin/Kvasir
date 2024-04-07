@@ -1,0 +1,13 @@
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button *ngIf="showLogoutButton" class="spacer-button" style="opacity: 0;">Spacer</ion-button>
+    </ion-buttons>
+
+    <ion-title>
+      Kvasir
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button *ngIf="showLogoutButton" class="logout-button" (click)="logout()">Logout</ion-button>
+    </ion-buttons>
+  </ion-toolbar>

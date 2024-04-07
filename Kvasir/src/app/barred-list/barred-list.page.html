@@ -1,9 +1,3 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Barred List</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
 
   <form #userForm="ngForm" (ngSubmit)="submitUser()" style="padding: 3%">
@@ -38,11 +32,9 @@
   <ion-list *ngIf="images && images.length > 0">
     <ion-item *ngFor="let image of images">
       {{ extractFileName(image.Key) }}
-      <ion-button (click)="showImage(image.Key)">Show Image</ion-button>
+      <ion-button  (click)="showImage(image.Key)" expand="block">Show Image</ion-button>
       <ion-button (click)="deleteImage(image.Key)" color="danger">Delete Image</ion-button>
     </ion-item>
   </ion-list>
-
-  <img [src]="displaySelectedImageUrl" alt="" width="40%">
 
 </ion-content>

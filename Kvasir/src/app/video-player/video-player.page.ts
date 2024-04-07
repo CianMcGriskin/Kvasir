@@ -45,13 +45,15 @@ export class VideoPlayerPage implements OnInit {
     });
   }
   async ngOnInit() {
-    // Get the Modal params
+    //Get the Modal params
     if (this.navParams.get('selectedVideoUrl')) {
       this.selectedVideoUrl = this.navParams.get('selectedVideoUrl')
     }
   }
 
-
+  /**
+   * Detects faces from the current frame
+   */
   async detectFaces() {
     //Reset the values when detecting faces again on same video
     this.croppedImage = null;
@@ -109,6 +111,9 @@ export class VideoPlayerPage implements OnInit {
     }
   }
 
+  /**
+   * Captures the current frame of the video and saves it
+   */
   captureFrame(): void {
     if (this.videoPlayer) {
       const video: HTMLVideoElement = this.videoPlayer.nativeElement;
@@ -123,6 +128,9 @@ export class VideoPlayerPage implements OnInit {
     }
   }
 
+  /**
+   * Convert data URL to a File object
+   */
   dataURLtoFile(dataurl: any, filename: any) {
     let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
       bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -132,16 +140,22 @@ export class VideoPlayerPage implements OnInit {
     return new File([u8arr], filename, { type: mime });
   }
 
+  /**
+   * Save cropped image after user moves cropping dimensions
+   */
   imageCropped(event: any): void {
     this.tempCroppedImage = event.blob;
   }
 
+  /**
+   * Confirm the crop of the image and save the image
+   */
   confirmCrop() {
     let blob: Blob;
     if (this.tempCroppedImage) {
       blob = this.tempCroppedImage;
 
-      // Create a File object from the Blob
+      //Create a File object from the Blob
       this.croppedImage = new File([blob], "croppedImage.png", { type: 'image/png' });
       this.croppedImageUrl = URL.createObjectURL(this.croppedImage);
 
@@ -156,14 +170,14 @@ export class VideoPlayerPage implements OnInit {
 
 
   }
-
+  /**
+   * Save a person to the S3 bucket
+   */
   async submitUser() {
-    // Retrieve the json of the barred people
     let searchParams = { Bucket: 'kvasir-storage', Key: 'PeopleInformation.json', ResponseCacheControl: "no-cache" };
     let searchCommand = new GetObjectCommand(searchParams);
 
     try {
-      // Retrieve the next free index
       let nextIndex: number = 0;
       let existingPeopleObject: any = null;
 
@@ -171,26 +185,26 @@ export class VideoPlayerPage implements OnInit {
         value.Body?.transformToString().then(async (dataAsString: any) => {
           existingPeopleObject = JSON.parse(dataAsString);
 
-          // Generate an array of existing indices
+          //Generate an array of existing indices
           let existingIndices = Object.keys(existingPeopleObject).map(index => parseInt(index)).sort((a, b) => a - b);
 
-          nextIndex = existingIndices.length; // Default to the next index if no gaps in index are found
-          for (let i = 0; i < existingIndices.length; i++) { // Look for gaps between indices
+          nextIndex = existingIndices.length; //Default to the next index if no gaps in index are found
+          for (let i = 0; i < existingIndices.length; i++) {// Look for gaps between indices
             if (existingIndices[i] !== i) {
               nextIndex = i;
               break;
             }
           } if (this.croppedImage) {
-            // Upload image of the person to the constant images folder to save
+            //Upload image of the person to the constant images folder to save
             let savedKey = `Images/${new Date().toISOString()}-${this.croppedImage.name}`;
             this.uploadImage(this.croppedImage, savedKey)
 
-            // Upload image of the person to the temporary images folder 
+            //Upload image of the person to the temporary images folder 
             let tempKey = `TempPersonImage/${nextIndex}-${new Date().toISOString()}-${this.croppedImage.name}`;
             this.uploadImage(this.croppedImage, tempKey)
 
 
-            // New person turned into object
+            //New person turned into object
             let personInfo = {
               Key: [savedKey],
               Name: this.userName,
@@ -200,10 +214,10 @@ export class VideoPlayerPage implements OnInit {
             if (existingPeopleObject) {
               existingPeopleObject[nextIndex] = personInfo;
 
-              // Change the updated object back to a JSON string
+              //Change the updated object back to a JSON string
               let updatedDataAsString = JSON.stringify(existingPeopleObject, null, 2);
 
-              // Add the file back with new user
+              //Add the file back with new user
               let addCommand = new PutObjectCommand({
                 Bucket: 'kvasir-storage',
                 Key: 'PeopleInformation.json',
@@ -229,6 +243,9 @@ export class VideoPlayerPage implements OnInit {
     }
   }
 
+  /**
+   * Upload an image of a person to the S3 bucket
+   */
   async uploadImage(file: File, key: string) {
 
     let commandInput: PutObjectCommandInput = {

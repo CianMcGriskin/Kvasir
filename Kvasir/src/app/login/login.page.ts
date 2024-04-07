@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword} from '@angular/fire/auth';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,11 +15,14 @@ export class LoginPage implements OnInit {
 
   constructor(private auth: Auth, private router: Router) {}
 
+  /**
+   * Logs the user into his account and redirects to home page
+   */
   async login() {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, this.email, this.password);
       console.log('You have been successfully logged in!', userCredential);
-      // Navigate to the home page (or another page) upon successful login
+      //Navigate to the home page upon successful login
       this.router.navigateByUrl('/home');
     } catch (error) {
       console.error('Login failed:', error);

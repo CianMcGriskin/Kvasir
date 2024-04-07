@@ -13,17 +13,16 @@ export class HomePage {
   constructor(private navController: NavController, private auth: Auth, private router: Router) {
     
   }
-
-  async logout() {
-    try {
-      await this.auth.signOut();
-      this.router.navigateByUrl('/login'); // Redirect to login page after logout
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  }
-
+  /**
+   * Redirects to livestream page
+   */
   goToLivestreamPage() {
     this.navController.navigateForward('livestream'); 
+  }
+  goToBarredListPage() {
+    this.navController.navigateForward('barred-list'); 
+  }
+  goToVideosPage() {
+    this.navController.navigateForward('database'); 
   }
 }

@@ -1,0 +1,62 @@
+// Define common variables
+$primary-color: #007bff;
+$text-color: #fff;
+$background-color: #121212; 
+$button-hover-color: #0056b3;
+$button-radius: 5px;
+
+ion-content {
+  --background: $background-color; 
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
+
+  ion-card {
+    max-width: 400px; 
+    width: 90%; 
+    margin: auto; 
+    margin-top: calc(40vh - 200px); 
+  }
+}
+
+ion-card-header {
+  background-color: $primary-color;
+  color: #fff;
+  text-align: center;
+  border-radius: 0.5rem 0.5rem 0 0;
+  height: 5rem;
+}
+
+ion-card-title {
+  padding: 15px 0; 
+}
+
+ion-card-content {
+  padding: 20px; 
+}
+
+ion-item {
+  background: $background-color; 
+  --padding-start: 8px;
+  --padding-end: 8px; 
+  border-radius: $button-radius; 
+  margin-top: 8px; 
+}
+
+ion-button {
+  background: $primary-color;
+  color: $text-color;
+  margin-top: 20px; 
+  border-radius: $button-radius; 
+}
+
+
+// Small screen adjustments
+@media (max-width: 576px) {
+  ion-card {
+    margin: 0; 
+    border-radius: 0; 
+  }
+}

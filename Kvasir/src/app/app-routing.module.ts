@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from './auth.guard'; // Update the path as per your project structure
+import { AuthGuard } from './auth.guard'; 
 const routes: Routes = [
   {
     path: 'home',
@@ -35,6 +35,11 @@ const routes: Routes = [
     path: 'video-player',
     loadChildren: () => import('./video-player/video-player.module').then( m => m.VideoPlayerPageModule)
   },
+  {
+    path: 'image-viewer',
+    loadChildren: () => import('./image-viewer/image-viewer.module').then( m => m.ImageViewerPageModule)
+  },
+
 
 ];
 

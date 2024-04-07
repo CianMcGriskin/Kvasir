@@ -14,7 +14,7 @@ export class AppComponent {
   constructor(private notificationService: NotificationsService) {}
 
   ngOnInit() {
-    this.notificationService.startPolling(4000); // Poll every 10 seconds
+    this.notificationService.startPolling(4000); //Poll notifications
   }
 
   ngOnDestroy() {
