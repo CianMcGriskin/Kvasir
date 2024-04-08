@@ -122,7 +122,7 @@ export class BarredListPage implements OnInit {
     await this.s3Client.send(new GetObjectCommand(getObjectParams)).then(async (data) => {
       if (data.Body && typeof data.Body.transformToString === 'function') {
         let bodyContentsPromise = data.Body.transformToString();
-        let bodyContents = await bodyContentsPromise; // Await the promise to get the string
+        let bodyContents = await bodyContentsPromise; //Await the promise to get the string
         let peopleInfo = JSON.parse(bodyContents);
 
         Object.keys(peopleInfo).forEach(async key => {
@@ -130,12 +130,12 @@ export class BarredListPage implements OnInit {
 
             let imageKeys = peopleInfo[key].Key
 
-            //Remove their entry in PeopleInformation.json
+            //Remove their entry in the peopleInfo json 
             delete peopleInfo[key];
 
 
             if (imageKeys && imageKeys.length > 0) {
-              // Iterate over all image keys for the person
+              //Iterate over all image keys for the person
               for (const imageKey of imageKeys) {
                 let params = {
                   Bucket: 'kvasir-storage',
@@ -143,23 +143,21 @@ export class BarredListPage implements OnInit {
                 };
 
                 try {
-                  // Attempt to delete each image from the bucket
+                  //Delete the image from the Images folder
                   let deleteCommand = new DeleteObjectCommand(params);
                   await this.s3Client.send(deleteCommand);
                   console.log(`Successfully deleted image: ${imageKey}`);
                 } catch (error) {
                   console.error('Error deleting image:', error);
-                  // Optionally, decide how to handle the error (stop or continue with other keys)
                 }
               }
             }
           }
         });
 
-        // Step 4: Convert the updated object back to JSON
         const updatedJson = JSON.stringify(peopleInfo);
 
-        // Step 5: Upload the modified JSON back to the S3 bucket
+        //Upload the new json
         console.log(JSON.parse(updatedJson))
         const putObjectParams = {
           Bucket: 'kvasir-storage',
@@ -180,17 +178,6 @@ export class BarredListPage implements OnInit {
   } catch(error: any) {
     console.error('Error updating PeopleInformation.json:', error);
     throw error;
-  }
-
-
-  // Helper function to convert a stream to a string
-  streamToString(stream: any): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const chunks: any = [];
-      stream.on('data', (chunk: any) => chunks.push(chunk));
-      stream.on('error', reject);
-      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
-    });
   }
 
   /**
