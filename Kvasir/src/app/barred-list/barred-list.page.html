@@ -29,12 +29,13 @@
     
 
 
-  <ion-list *ngIf="images && images.length > 0">
-    <ion-item *ngFor="let image of images">
-      {{ extractFileName(image.Key) }}
-      <ion-button  (click)="showImage(image.Key)" expand="block">Show Image</ion-button>
-      <ion-button (click)="deleteImage(image.Key)" color="danger">Delete Image</ion-button>
+  <ion-list *ngIf="people && people.length > 0">
+    <ion-item *ngFor="let person of people">
+      Name: {{ person.Name }}
+      <ion-button  (click)="showImage(person.Key, person.Name, person.Reason)" expand="block">Show Image</ion-button>
+      <ion-button (click)="deleteImage(person.Name)" color="danger">Delete Person</ion-button>
     </ion-item>
   </ion-list>
 
 </ion-content>
+  

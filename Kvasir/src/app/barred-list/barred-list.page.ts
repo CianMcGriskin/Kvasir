@@ -13,9 +13,8 @@ import { ImageViewerPage } from '../image-viewer/image-viewer.page';
   styleUrls: ['./barred-list.page.scss'],
 })
 export class BarredListPage implements OnInit {
-  images: any[];
+  people: any[];
   s3Client: S3Client;
-  displaySelectedImageUrl: String | undefined;
   userName: string = '';
   userReason: string = '';
 
@@ -23,7 +22,7 @@ export class BarredListPage implements OnInit {
   addingUserSelectedImage: File | null = null;
 
   constructor(private loadingController: LoadingController, private fb: FormBuilder, private modalController: ModalController) {
-    this.images = [];
+    this.people = [];
 
     this.form = this.fb.group({
       userName: ['', Validators.required],
@@ -56,7 +55,7 @@ export class BarredListPage implements OnInit {
     await loading.present();
 
     try {
-      this.images = await this.listImagesFromS3Folder();
+      await this.listPeopleFromS3Folder();
     } catch (error) {
       console.error('Error fetching images:', error);
     } finally {
@@ -68,25 +67,16 @@ export class BarredListPage implements OnInit {
    * Retrieves a list of videos from the S3 bucket inside the 'Images' folder
    * @returns array of images from S3 bucket
    */
-  async listImagesFromS3Folder() {
-
-    let params = {
-      Bucket: 'kvasir-storage',
-      Prefix: 'Images/',
-    };
+  async listPeopleFromS3Folder() {
+    let searchParams = { Bucket: 'kvasir-storage', Key: 'PeopleInformation.json', ResponseCacheControl: "no-cache" };
+    let searchCommand = new GetObjectCommand(searchParams);
 
     try {
-      let command = new ListObjectsV2Command(params);
-      let data = await this.s3Client.send(command);
-
-      const allowedImageExtensions = ['.jpg', '.jpeg', '.png'];
-
-      const images = data.Contents?.filter(obj => {
-        const key = obj?.Key || '';
-        return allowedImageExtensions.some(ext => key.toLowerCase().endsWith(ext));
-      }) || [];
-
-      return images;
+      await this.s3Client.send(searchCommand).then((value: any) => {
+        value.Body?.transformToString().then((dataAsString: any) => {
+          this.people = Object.values(JSON.parse(dataAsString));
+        })
+      });
     }
     catch (error) {
       console.error('Error:', error);
@@ -107,72 +97,102 @@ export class BarredListPage implements OnInit {
   /**
    * Opens an image in a modal
    */
-  async showImage(key: string) {
-    //Reset the values when swapping between images
-    this.displaySelectedImageUrl = undefined;
+  async showImage(key: string, name: string, reason: string) {
 
-    let params = {
-      Bucket: 'kvasir-storage',
-      Key: key,
-    };
-
-    try {
-      let command = new GetObjectCommand(params)
-      let image = await this.s3Client.send(command);
-
-      //Transform image to BLOB
-      let imageData = await image.Body?.transformToByteArray();
-      if (imageData) {
-        let imageBlob = new Blob([imageData], { type: 'image/jpg' });
-
-        //Generate a URL to the image so we can display it inside the view
-        this.displaySelectedImageUrl = URL.createObjectURL(imageBlob);
-
-        const modal = await this.modalController.create({
-          component: ImageViewerPage, 
-          componentProps: {
-            'displaySelectedImageUrl': this.displaySelectedImageUrl, //Pass image URL to the modal
-          },
-        });
-    
-        return await modal.present();
-      }
-      else {
-        this.displaySelectedImageUrl = undefined;
-        console.error("Invalid image URL");
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
-
+    const modal = await this.modalController.create({
+      component: ImageViewerPage,
+      componentProps: {
+        'imageKey': key, //Pass image key to the modal
+        'personName': name,
+        'personReason': reason
+      },
+    });
+    return await modal.present();
   }
 
   /**
    * Deletes image from s3 bucket
    */
-  async deleteImage(key: string) {
-    if (!key) {
-      console.error("No image to delete");
-      return;
-    }
-
-    let params = {
+  async deleteImage(personName: string) {
+    let getObjectParams = {
       Bucket: 'kvasir-storage',
-      Key: key,
+      Key: 'PeopleInformation.json',
+      ResponseCacheControl: "no-cache"
     };
+    await this.s3Client.send(new GetObjectCommand(getObjectParams)).then(async (data) => {
+      if (data.Body && typeof data.Body.transformToString === 'function') {
+        let bodyContentsPromise = data.Body.transformToString();
+        let bodyContents = await bodyContentsPromise; // Await the promise to get the string
+        let peopleInfo = JSON.parse(bodyContents);
 
-    try {
-      let deleteCommand = new DeleteObjectCommand(params);
-      await this.s3Client.send(deleteCommand);
+        Object.keys(peopleInfo).forEach(async key => {
+          if (peopleInfo[key].Name == personName) {
 
-      //Reset selected values after deletion in case image is showing up
-      this.displaySelectedImageUrl = undefined;
-      this.loadImages();
-    } catch (error) {
-      console.error('Error deleting image:', error);
-    }
+            let imageKeys = peopleInfo[key].Key
+
+            //Remove their entry in PeopleInformation.json
+            delete peopleInfo[key];
+
+
+            if (imageKeys && imageKeys.length > 0) {
+              // Iterate over all image keys for the person
+              for (const imageKey of imageKeys) {
+                let params = {
+                  Bucket: 'kvasir-storage',
+                  Key: imageKey,
+                };
+
+                try {
+                  // Attempt to delete each image from the bucket
+                  let deleteCommand = new DeleteObjectCommand(params);
+                  await this.s3Client.send(deleteCommand);
+                  console.log(`Successfully deleted image: ${imageKey}`);
+                } catch (error) {
+                  console.error('Error deleting image:', error);
+                  // Optionally, decide how to handle the error (stop or continue with other keys)
+                }
+              }
+            }
+          }
+        });
+
+        // Step 4: Convert the updated object back to JSON
+        const updatedJson = JSON.stringify(peopleInfo);
+
+        // Step 5: Upload the modified JSON back to the S3 bucket
+        console.log(JSON.parse(updatedJson))
+        const putObjectParams = {
+          Bucket: 'kvasir-storage',
+          Key: 'PeopleInformation.json',
+          Body: updatedJson,
+          ContentType: 'application/json',
+        };
+        await this.s3Client.send(new PutObjectCommand(putObjectParams)).then(() => {
+          this.loadImages();
+        });
+        console.log(`Successfully removed ${personName} from PeopleInformation.json and updated the file.`);
+
+      } else {
+        console.log('Body is undefined or transformToString is not a function');
+      }
+    });
+
+  } catch(error: any) {
+    console.error('Error updating PeopleInformation.json:', error);
+    throw error;
   }
+
+
+  // Helper function to convert a stream to a string
+  streamToString(stream: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const chunks: any = [];
+      stream.on('data', (chunk: any) => chunks.push(chunk));
+      stream.on('error', reject);
+      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+    });
+  }
+
   /**
    * Uploads image onto the s3 bucket along with user details
    */
@@ -278,5 +298,5 @@ export class BarredListPage implements OnInit {
     }
   }
 
-  
+
 }
