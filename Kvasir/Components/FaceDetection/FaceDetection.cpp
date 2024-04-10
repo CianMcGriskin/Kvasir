@@ -97,6 +97,10 @@ void FaceDetection::DetectFaces(cv::Mat &image, float confidenceLevel, bool disp
 }
 
 bool FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel) {
+    std::string protoPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/deploy.prototxt";
+    std::string caffeModelPath = "../../Kvasir/Components/Models/FaceDetectionCaffeModel/res10_300x300_ssd_iter_140000_fp16.caffemodel";
+    auto tempFaceDetectionModel = cv::dnn::readNetFromCaffe(protoPath, caffeModelPath);
+    
     int imageHeight = image.rows;
     int imageWidth = image.cols;
 
@@ -114,9 +118,10 @@ bool FaceDetection::DetectFaceWithinImage(cv::Mat &image, float confidenceLevel)
     cv::Mat preprocessedImage;
     cv::dnn::blobFromImage(image, preprocessedImage, 1.0, size, blobMean, false, false);
 
+
     // Set image as input
-    faceDetectionModel.setInput(preprocessedImage);
-    cv::Mat results = faceDetectionModel.forward();
+    tempFaceDetectionModel.setInput(preprocessedImage);
+    cv::Mat results = tempFaceDetectionModel.forward();
 
     // Initialise a cv::Mat object to hold the detection results
     cv::Mat detectionMat(results.size[2], results.size[3], CV_32F, results.ptr<float>());

@@ -12,6 +12,15 @@ void NotificationQueue::push(const Notification& notification) {
     conditionVar.notify_one();
 }
 
+int NotificationQueue::size(){
+    return queue.size();
+}
+
+void NotificationQueue::clear(){
+    std::queue<NotificationQueue::Notification> empty;
+    std::swap(queue, empty);
+}
+
 // When a thread becomes available then pops it from the queue
 void NotificationQueue::wait_and_pop(Notification& notification) {
     // Acquire a lock on the mutex

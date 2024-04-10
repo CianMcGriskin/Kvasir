@@ -100,7 +100,7 @@ void Model::HandleFaceOutput() { // avg 2ms execution
                 float similarity = FaceDetection::CompareFaces(faceEmbeddings, faceData);
 
                 // If similarity is greater than threshold then we are confident that it is that person
-                if (similarity > 0.85)
+                if (similarity > 0.80)
                 {
                     // Print detection
                     std::cout << "Detected: " << jsonData[key]["Name"] << " with a similarity of " << similarity << std::endl;
@@ -110,6 +110,12 @@ void Model::HandleFaceOutput() { // avg 2ms execution
                     notification.name = jsonData[key]["Name"];
                     notification.reason = jsonData[key]["Reason"];
                     notification.confidence = similarity;
+
+                    // Get more up to date notifications
+                    if(notificationQueue->size() > 2)
+                    {
+                        notificationQueue->clear();
+                    }
 
                     // Add the prepared notification to the notification queue
                     notificationQueue->push(notification);
