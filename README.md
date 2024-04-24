@@ -13,7 +13,7 @@ Link can be found here: [Kvasir Backend](https://github.com/CianMcGriskin/Kvasir
 ## Kvasir Mobile - Adrian Holk-Lebinski
 Ionic web application that acts as a UI for Kvasir Backend and Kvasir ANPR. 
 
-Link can be found here: [Kvasir Mobile](https://github.com/CianMcGriskin/Kvasir/tree/android) 
+Link can be found here: [Kvasir Mobile](https://github.com/CianMcGriskin/Kvasir/tree/Mobile) 
 
 ## TO PUT
 
