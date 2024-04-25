@@ -34,10 +34,5 @@ ionic serve
 ```
 
 ## Recorded Demo
-Here is a video demonstration:
-
-<video controls>
-    <source src="./Demo.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
+The demonstration is saved as Demo.mp4 in this repository. 
 
