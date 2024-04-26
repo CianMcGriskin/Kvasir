@@ -15,7 +15,10 @@ Ionic web application that acts as a UI for Kvasir Backend and Kvasir ANPR.
 
 Link can be found here: [Kvasir Mobile](https://github.com/CianMcGriskin/Kvasir/tree/Mobile) 
 
-## TO PUT
+## Kvasir ANPR - Maciej Lopacinski
+Vehicle and license plate detection service, with OCR capabilities for vehicle information lookup
+
+Link can be found here: [Kvasir ANPR](https://github.com/CianMcGriskin/Kvasir/tree/ANPR) 
 
 To put here
 ```
