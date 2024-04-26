@@ -44,7 +44,7 @@ def buildAWSSDK():
 
     os.makedirs(build_path, exist_ok=True)
     try:
-        subprocess.run(["cmake", "..", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_INSTALL_PREFIX=./install", "-DBUILD_ONLY=\"s3\""], cwd=build_path, check=True)
+        subprocess.run(["cmake", "..", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_INSTALL_PREFIX=./install", "-DBUILD_ONLY=s3"], cwd=build_path, check=True)
         subprocess.run(["cmake", "--build", ".", "--config=Debug"], cwd=build_path, check=True)
         subprocess.run(["cmake", "--install", ".", "--config=Debug"], cwd=build_path, check=True)
     except subprocess.CalledProcessError as e:

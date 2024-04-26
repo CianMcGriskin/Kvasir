@@ -8,6 +8,7 @@ This applciation can be executed on WIndows & Linux. Mac OS is untested. The pro
 2. [How it works](#how-it-works)
 3. [Build Guide](#build-guide)
 4. [Demonstration](#demonstration)
+5. [Windows Build](#windows-build)
 
 # Features
  - Saves video based on motion detection, stops recording if no motion detection after 10 seconds.
@@ -32,6 +33,9 @@ This applciation can be executed on WIndows & Linux. Mac OS is untested. The pro
 This project has many dependencies such as **Tensorflow Lite**, **OpenCV**, **nlohmann/json**, **AWS-SDK** 
 (For C++ - S3 specifically) and **nadjieb/cpp-mjpeg-streamer**.
 
+To clone the repository make sure to include the branch argument.
+``git clone --branch ModelInference https://github.com/CianMcGriskin/Kvasir.git``
+
 To download these dependencies please use naviage to the Kvasir/Scripts and run the python script named "download-dependencies.py". After this run "build-dependencies.py". It is recommended to use the following versions of each dependence based on their commit hash:
 | Repo | Git Hash |
 |--|--|
@@ -43,4 +47,15 @@ To download these dependencies please use naviage to the Kvasir/Scripts and run 
 
 ## Demonstration
 
-Video demo to be here.
+Video demo is located at Demonstration.wmv
+
+
+## Windows Build
+For building on windows you will need to add the following code to the start of ./Kvasir/CMakeLists.txt underneath project(Kvasir). You will need to alter the variable CMAKE_ASM_COMPILER to your own version of a compiler (Visual Studio in this case), remember this is designed with C++ 17.
+```markdown
+set(CMAKE_ASM_COMPILER "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/Hostx64/x64/cl.exe") 
+set(AWSSDK_DIR "./Dependencies/aws-sdk-cpp/build/install/lib/cmake/AWSSDK")
+set(aws-cpp-sdk-core_DIR "./Dependencies/aws-sdk-cpp/build/install/lib/cmake/aws-cpp-sdk-core") 
+set(aws-crt-cpp_DIR "./Dependencies/aws-sdk-cpp/build/install/lib/aws-crt-cpp/cmake") 
+set(aws-cpp-sdk-s3_DIR "./Dependencies/aws-sdk-cpp/build/install/lib/cmake/aws-cpp-sdk-s3")
+
