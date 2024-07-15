@@ -19,6 +19,3 @@ Link can be found here: [Kvasir Mobile](https://github.com/CianMcGriskin/Kvasir/
 Vehicle and license plate detection service, with OCR capabilities for vehicle information lookup
 
 Link can be found here: [Kvasir ANPR](https://github.com/CianMcGriskin/Kvasir/tree/ANPR) 
-
-To put here
-```
